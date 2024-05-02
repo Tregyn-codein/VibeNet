@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>VibeNet</title>
+</head>
+<body>
+<!--<div th:replace="fragments/header :: header"></div>-->
+<header xmlns:th="http://www.thymeleaf.org" th:fragment="header">
+    <nav>
+        <div>
+            <!-- Логотип и ссылка на главную страницу -->
+            <a href="/" th:href="@{/}">
+                <img src="/images/logo.png" alt="VibeNet" th:src="@{/images/logo.png}" />
+                <span>VibeNet</span>
+            </a>
+        </div>
+        <div>
+            <!-- Строка поиска -->
+            <form th:action="@{/search}" method="get">
+                <input type="text" name="query" placeholder="Search posts..." />
+                <button type="submit">Search</button>
+            </form>
+        </div>
+        <div>
+            <!-- Информация о пользователе и ссылка на профиль -->
+            <a href="/profile" th:href="@{/profile}">
+                <img src="/images/user-placeholder.png" alt="Profile" th:src="${user.profilePicture}" />
+                <span th:text="${user.name}">User Name</span>
+            </a>
+        </div>
+    </nav>
+</header>
+
+<h1>Welcome to VibeNet!</h1>
+<p>This is a simple social network application built with Spring Boot and Thymeleaf.</p>
+</body>
+</html>

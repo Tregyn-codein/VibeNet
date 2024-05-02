@@ -1,0 +1,35 @@
+<header xmlns:th="http://www.thymeleaf.org" th:fragment="header" class="header">
+    <nav>
+        <div>
+            <!-- Логотип и ссылка на главную страницу -->
+            <a href="/" th:href="@{/}" class="logo">
+                <span class="material-icons logo-pic">leak_add</span>
+                <span>VibeNet</span>
+            </a>
+        </div>
+        <div>
+            <!-- Строка поиска -->
+            <form th:action="@{/search}" method="get" class="search-bar">
+                <input type="text" name="query" placeholder="Search posts..." />
+                <button type="submit"><span class="material-icons">search</span></button>
+            </form>
+        </div>
+        <div>
+            <!-- Информация о пользователе и ссылка на профиль -->
+            <a href="/profile" th:href="@{/profile}" class="user-info">
+                <span th:text="${username}">User Name</span>
+                <img th:if="${avatar}" th:src="'data:image/png;base64,' + ${avatar}" alt="Profile Picture" />
+                <img th:unless="${avatar}" src="images/profile_image.png" alt="Default Image" />
+            </a>
+        </div>
+        <div class="log-buttons">
+            <a href="/login" th:href="@{/login}" class="btn log-btn">
+                <span>Войти</span>
+            </a>
+            <a href="/logout" th:href="@{/logout}" class="btn log-btn">
+                <span>Выйти</span>
+            </a>
+        </div>
+
+    </nav>
+</header>
