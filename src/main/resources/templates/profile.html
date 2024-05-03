@@ -6,8 +6,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
 <head>
     <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <link rel="icon" href="images/favicon.svg">
     <title>VibeNet|Личный кабинет</title>
 </head>
@@ -18,12 +21,36 @@
         <div class="profile-image">
             <img th:if="${avatar}" th:src="'data:image/png;base64,' + ${avatar}" alt="Profile Picture" />
             <img th:unless="${avatar}" src="images/profile_image.png" alt="Default Image" />
-            <a href="" class="upd-profile-picture"><span class="upd-profile-picture-text">Обновить фотографию</span><span class="material-icons icon">image</span></a>
+            <button id="updatePhotoButton" class="upd-profile-picture"><span class="upd-profile-picture-text">Обновить фотографию</span><span class="material-icons icon">image</span></button >
         </div>
+
+        <!-- Модальное окно -->
+        <div id="myModal" class="modal" style="display: none">
+            <!-- Содержимое модального окна -->
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div class="crop-container" id="crop-container">
+                    <img id="imagePreview" src="" alt="" style="max-width: 100%; display: none" />
+                </div>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <label class="input-file">
+                        <input type="file" id="fileInput" name="file" accept="image/*" required>
+                        <span class="input-file-btn">Выберите файл</span>
+                        <span class="input-file-text">Максимум 512 КБ</span>
+                    </label>
+<!--                    <div class="input-file-list"></div>-->
+                    <button type="submit">Загрузить</button>
+                </form>
+            </div>
+        </div>
+
         <div class="profile-username">
             <span th:text="${username}">User Name</span>
         </div>
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script th:src="@{/js/profile.js}"></script>
 </body>
 </html>

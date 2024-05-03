@@ -10,9 +10,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Base64;
-
 
 @Controller
 public class Profile {
@@ -52,6 +55,27 @@ public class Profile {
 //        model.addAttribute("avatar", getProfilePicture(currentUser(principal)));
         model.addAttribute("avatar", getProfilePictureAsBase64(currentUser(principal)));
         return "profile"; // Возвращает имя шаблона без расширения .html
+    }
+
+    @PostMapping("/uploadPhoto")
+    public String uploadPhoto(@AuthenticationPrincipal OAuth2User principal, @RequestParam("croppedImage") MultipartFile file) {
+        if (!file.isEmpty()) {
+            try {
+                byte[] bytes = file.getBytes();
+                // Обработка и сохранение bytes в базе данных
+                userService.saveProfilePicture(currentUser(principal).getId(), bytes);
+                System.out.println("Файл успешно загружен");
+                return "redirect:/profile";
+            } catch (Exception e) {
+                System.out.println("Ошибка загрузки файла");
+                return "redirect:/profile";
+
+            }
+        } else {
+            System.out.println("Файл не загружен");
+            return "redirect:/profile";
+
+        }
     }
 
 }
