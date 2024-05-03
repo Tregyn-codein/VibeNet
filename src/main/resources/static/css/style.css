@@ -85,7 +85,7 @@ a {
 .logo .logo-pic {
     font-size: 36px;
     margin-right: 3px;
-    transition: transform .3s ease-in-out;
+    transition: transform .4s ease-out;
 }
 
 .logo span {
