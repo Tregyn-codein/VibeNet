@@ -49,4 +49,9 @@ public class OAuth2Controller {
         // Перенаправление на страницу запроса никнейма, если необходимо
         return "redirect:/";
     }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login"; // Имя вашего шаблона страницы логина
+    }
 }

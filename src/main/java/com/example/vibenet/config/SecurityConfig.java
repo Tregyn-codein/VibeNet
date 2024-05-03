@@ -26,6 +26,7 @@ public class SecurityConfig{
                 .logout(logout -> logout.permitAll())
                 .oauth2Login(oauth2Login ->
                         oauth2Login
+                                .loginPage("/login")
                                 .defaultSuccessUrl("/login-success", true) // URL для перенаправления после успешной авторизации
                 );
 

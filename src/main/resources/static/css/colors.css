@@ -1,0 +1,19 @@
+/* Colors */
+colors {
+    /*https://coolors.co/818eef-7e8bec-7a87e8-6f7de2-6373dc-5866d7-4d58d2-3b45b1-283290*/
+    --vista-blue: #818eefff;
+    --tropical-indigo: #7e8becff;
+    --tropical-indigo-2: #7a87e8ff;
+    --glaucous: #6f7de2ff;
+    --royal-blue-web-color: #6373dcff;
+    --savoy-blue: #5866d7ff;
+    --byzantine-blue: #4d58d2ff;
+    --violet-blue: #3b45b1ff;
+    --egyptian-blue: #283290ff;
+
+    --thistle: #cdb4dbff;
+    --fairy-tale: #ffc8ddff;
+    --carnation-pink: #ffafccff;
+    --uranian-blue: #bde0feff;
+    --light-sky-blue: #a2d2ffff;
+}
