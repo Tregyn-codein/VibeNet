@@ -30,7 +30,6 @@
 
 .wall .profile-image .upd-profile-picture {
     color: #ffffff;
-    font-weight: 300;
     font-size: 18px;
     justify-content: space-around;
     display: flex;
@@ -38,16 +37,15 @@
     align-items: center;
     width: 200px;
     margin-top: 15px;
-    background: #e13d3d;
-    border: solid 2px #aa2929;
+    background: #45afc3;
+    border: none;
     border-radius: 5px;
     transition: all .1s linear;
 }
 
 .wall .profile-image .upd-profile-picture:hover{
-    background: #e14848;
-    border: solid 2px #b52d2d;
-    /*cursor: pointer;*/
+    background: #3a8aae;
+    cursor: pointer;
 }
 
 
@@ -73,6 +71,8 @@
     font-size: 64px;
     font-weight: 600;
 }
+
+/*Форма загрузки изображения*/
 
 .wall .modal{
     width: 400px;
@@ -142,7 +142,7 @@
     color: rgb(255 255 255);
     text-align: center;
     border-radius: 4px;
-    background-color: #419152;
+    background-color: #479773;
     line-height: 22px;
     height: 40px;
     padding: 10px 20px;
@@ -173,10 +173,7 @@
 
 /* Hover/active */
 .wall .modal .modal-content #uploadForm .input-file:hover .input-file-btn {
-    background-color: #59be6e;
-}
-.wall .modal .modal-content #uploadForm .input-file:active .input-file-btn {
-    background-color: #2E703A;
+    background-color: #4fa57e;
 }
 
 /* Disabled */
@@ -228,7 +225,7 @@
 .wall .modal .modal-content #uploadForm button{
     padding: 4px 2px;
     color: #ffffff;
-    background: #419152;
+    background: #479773;
     border-style: none;
     border-radius: 4px;
     width: 100px;
@@ -237,6 +234,70 @@
 }
 .wall .modal .modal-content #uploadForm button:hover{
     cursor: pointer;
-    background: #59be6e;
+    background: #4fa57e;
 
+}
+
+.wall .profile-username {
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+}
+
+.wall .profile-username .edit-username{
+    font-size: 32px;
+    margin-left: 5px;
+    user-select: none;
+    transition: all .05s linear;
+}
+
+.wall .profile-username .edit-username:hover {
+    color: #dddddd;
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.wall #editUsernameModal {
+    padding: 10px 30px;
+}
+
+.wall #editUsernameModal .input-username {
+    font-size: 18px;
+
+}
+
+.wall #editUsernameModal #editUsernameForm {
+    display: flex;
+    margin-top: 10px;
+}
+
+.wall #editUsernameModal #editUsernameForm input {
+    padding: 5px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px 0 0 5px;
+    outline: none;
+    width: 100%;
+
+}
+
+.wall #editUsernameModal #editUsernameForm input:focus {
+    /*border: solid 2px #333;*/
+    box-shadow: 0px 0px 8px 2px rgba(34, 60, 80, 0.2) inset;
+}
+
+.wall #editUsernameModal #editUsernameForm button {
+    padding: 5px 10px;
+    font-size: 18px;
+    border: none;
+    background-color: #479773;
+    color: #fff;
+    border-radius: 0 5px 5px 0;
+    transition: all .1s linear;
+}
+
+.wall #editUsernameModal #editUsernameForm button:hover {
+    background-color: #4fa57e;
+    color: #ddd;
+    cursor: pointer;
 }

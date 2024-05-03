@@ -78,6 +78,25 @@ public class Profile {
         }
     }
 
+    @PostMapping("/updateUsername")
+    public String updateUsername(@AuthenticationPrincipal OAuth2User principal, @RequestParam("username") String newUsername) {
+        if (!newUsername.isEmpty()) {
+            try {
+                userService.saveUsername(currentUser(principal).getId(), newUsername);
+                System.out.println("Имя пользователя успешно загружено");
+                return "redirect:/profile";
+            } catch (Exception e) {
+                System.out.println("Ошибка загрузки имени пользователя");
+                return "redirect:/profile";
+
+            }
+        } else {
+            System.out.println("Имя пользователя не загружено");
+            return "redirect:/profile";
+
+        }
+    }
+
 }
 
 

@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<link rel="stylesheet" th:href="@{/css/style.css}" />
-<link rel="stylesheet" th:href="@{/css/profile.css}" />
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
 <head>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/css/profile.css}" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <meta charset="UTF-8">
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
@@ -25,10 +26,10 @@
         </div>
 
         <!-- Модальное окно -->
-        <div id="myModal" class="modal" style="display: none">
+        <div id="uploadPhotoModal" class="modal" style="display: none">
             <!-- Содержимое модального окна -->
             <div class="modal-content">
-                <span class="close">&times;</span>
+                <span class="close" id="close-profile-photo-modal">&times;</span>
                 <div class="crop-container" id="crop-container">
                     <img id="imagePreview" src="" alt="" style="max-width: 100%; display: none" />
                 </div>
@@ -45,12 +46,24 @@
         </div>
 
         <div class="profile-username">
-            <span th:text="${username}">User Name</span>
+            <span th:text="${username}" class="username">User Name</span>
+            <span class="material-icons edit-username" title="Изменить имя" id="edit-username-btn">mode_edit</span>
+        </div>
+        <!-- Модальное окно -->
+        <div id="editUsernameModal" class="modal" style="display: none">
+            <!-- Содержимое модального окна -->
+            <div class="modal-content">
+                <span class="close" id="close-username-modal">&times;</span>
+                <span class="input-username">Максимальная длина 15 символов</span>
+                <form id="editUsernameForm" enctype="multipart/form-data">
+                    <input type="text" id="usernameInput" name="username"  autocomplete="no" placeholder="Введите новое имя" required>
+                    <button type="submit">Обновить</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <script th:src="@{/js/profile.js}"></script>
 </body>
 </html>

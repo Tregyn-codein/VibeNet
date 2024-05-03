@@ -69,6 +69,12 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void saveUsername(Long userId, String username) {
+        User user = userRepository.findById(userId).orElseThrow(/* ... */);
+        user.setUsername(username);
+        userRepository.save(user);
+    }
+
     public byte[] getProfilePicture(Long userId) {
         return userRepository.findById(userId)
                 .map(User::getProfilePicture)
