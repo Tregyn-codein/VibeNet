@@ -1,6 +1,5 @@
 .wall {
     color: #ffffff;
-    /*width: 100%;*/
     max-width: inherit;
     height: 500px;
     background: rgba(211, 211, 211, 0.3);
@@ -10,7 +9,6 @@
     flex-direction: row;
     backdrop-filter: blur(5px);
     box-shadow: -1px 4px 10px 4px rgba(34, 60, 80, 0.22);
-    /*border: double 10px #dad65b;*/
 }
 
 .wall .profile-image{
@@ -74,7 +72,7 @@
 
 /*Форма загрузки изображения*/
 
-.wall .modal{
+.wall .myModal{
     width: 400px;
     /*height: 200px;*/
     position: absolute;
@@ -89,15 +87,16 @@
     box-shadow: -1px 4px 10px 4px rgba(34, 60, 80, 0.22);
 }
 
-.wall .modal .modal-content .close{
+.wall .myModal .close{
+    z-index: 2;
     position: absolute;
-    top: 2px;
-    right: 2px;
+    top: 0;
+    right: 0;
     margin: 0  10px;
     font-size: 32px;
 }
 
-.wall .modal .modal-content .close:hover{
+.wall .myModal .close:hover{
     cursor: pointer;
     color: #ffa3a3;
 }
@@ -116,22 +115,22 @@
     max-width: 100%;
 }
 
-.wall .modal .modal-content #uploadForm{
+.wall .myModal .modal-content #uploadForm{
     margin-top: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.wall .modal .modal-content #uploadForm *{
+.wall .myModal .modal-content #uploadForm *{
     margin-bottom: 20px;
 }
 
-.wall .modal .modal-content #uploadForm .input-file {
+.wall .myModal .modal-content #uploadForm .input-file {
     position: relative;
     display: inline-block;
 }
-.wall .modal .modal-content #uploadForm .input-file-btn {
+.wall .myModal .modal-content #uploadForm .input-file-btn {
     position: relative;
     display: inline-block;
     cursor: pointer;
@@ -151,13 +150,13 @@
     margin: 0;
     transition: background-color 0.1s;
 }
-.wall .modal .modal-content #uploadForm .input-file-text {
+.wall .myModal .modal-content #uploadForm .input-file-text {
     padding: 0 10px;
     line-height: 40px;
     display: inline-block;
     font-size: 18px;
 }
-.wall .modal .modal-content #uploadForm .input-file input[type=file] {
+.wall .myModal .modal-content #uploadForm .input-file input[type=file] {
     position: absolute;
     z-index: -1;
     opacity: 0;
@@ -167,37 +166,37 @@
 }
 
 /* Focus */
-.wall .modal .modal-content #uploadForm .input-file input[type=file]:focus + .input-file-btn {
+.wall .myModal .modal-content #uploadForm .input-file input[type=file]:focus + .input-file-btn {
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
 /* Hover/active */
-.wall .modal .modal-content #uploadForm .input-file:hover .input-file-btn {
+.wall .myModal .modal-content #uploadForm .input-file:hover .input-file-btn {
     background-color: #4fa57e;
 }
 
 /* Disabled */
-.wall .modal .modal-content #uploadForm .input-file input[type=file]:disabled + .input-file-btn {
+.wall .myModal .modal-content #uploadForm .input-file input[type=file]:disabled + .input-file-btn {
     background-color: #eee;
 }
 
 /* Список c превью */
-/*.wall .modal .modal-content #uploadForm .input-file-list {*/
+/*.wall .myModal .modal-content #uploadForm .input-file-list {*/
 /*    padding: 10px 0;*/
 /*    margin-bottom: 0;*/
 /*}*/
-/*.wall .modal .modal-content #uploadForm .input-file-list-item {*/
+/*.wall .myModal .modal-content #uploadForm .input-file-list-item {*/
 /*    display: inline-block;*/
 /*    margin: 0 15px 15px;*/
 /*    width: 150px;*/
 /*    vertical-align: top;*/
 /*    position: relative;*/
 /*}*/
-/*.wall .modal .modal-content #uploadForm .input-file-list-item img {*/
+/*.wall .myModal .modal-content #uploadForm .input-file-list-item img {*/
 /*    width: 150px;*/
 /*    margin-bottom: 5px;*/
 /*}*/
-/*.wall .modal .modal-content #uploadForm .input-file-list-name {*/
+/*.wall .myModal .modal-content #uploadForm .input-file-list-name {*/
 /*    text-align: center;*/
 /*    display: block;*/
 /*    font-size: 12px;*/
@@ -205,7 +204,7 @@
 /*    overflow: hidden;*/
 /*    margin-bottom: 0;*/
 /*}*/
-/*.wall .modal .modal-content #uploadForm .input-file-list-remove {*/
+/*.wall .myModal .modal-content #uploadForm .input-file-list-remove {*/
 /*    color: #fff;*/
 /*    text-decoration: none;*/
 /*    display: inline-block;*/
@@ -222,7 +221,7 @@
 /*    border-radius: 50%;*/
 /*}*/
 
-.wall .modal .modal-content #uploadForm button{
+.wall .myModal .modal-content #uploadForm button{
     padding: 4px 2px;
     color: #ffffff;
     background: #479773;
@@ -232,7 +231,7 @@
     font-size: 18px;
     transition: background-color 0.1s;
 }
-.wall .modal .modal-content #uploadForm button:hover{
+.wall .myModal .modal-content #uploadForm button:hover{
     cursor: pointer;
     background: #4fa57e;
 

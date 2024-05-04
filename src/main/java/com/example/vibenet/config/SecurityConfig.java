@@ -16,14 +16,18 @@ public class SecurityConfig{
         http
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/guest").permitAll() // Используйте requestMatchers для указания путей
+                                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Используйте requestMatchers для указания путей
                                 .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .permitAll()
                 )
-                .logout(logout -> logout.permitAll())
+                .logout(logout ->
+                        logout
+                                .logoutSuccessUrl("/login")
+                                .permitAll()
+                )
                 .oauth2Login(oauth2Login ->
                         oauth2Login
                                 .loginPage("/login")

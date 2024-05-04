@@ -26,10 +26,10 @@
         </div>
 
         <!-- Модальное окно -->
-        <div id="uploadPhotoModal" class="modal" style="display: none">
+        <div id="uploadPhotoModal" class="myModal" style="display: none">
             <!-- Содержимое модального окна -->
+            <span class="close" id="close-profile-photo-modal">&times;</span>
             <div class="modal-content">
-                <span class="close" id="close-profile-photo-modal">&times;</span>
                 <div class="crop-container" id="crop-container">
                     <img id="imagePreview" src="" alt="" style="max-width: 100%; display: none" />
                 </div>
@@ -50,10 +50,10 @@
             <span class="material-icons edit-username" title="Изменить имя" id="edit-username-btn">mode_edit</span>
         </div>
         <!-- Модальное окно -->
-        <div id="editUsernameModal" class="modal" style="display: none">
+        <div id="editUsernameModal" class="myModal" style="display: none">
+            <span class="close" id="close-username-modal">&times;</span>
             <!-- Содержимое модального окна -->
             <div class="modal-content">
-                <span class="close" id="close-username-modal">&times;</span>
                 <span class="input-username">Максимальная длина 15 символов</span>
                 <form id="editUsernameForm" enctype="multipart/form-data">
                     <input type="text" id="usernameInput" name="username"  autocomplete="no" placeholder="Введите новое имя" required>

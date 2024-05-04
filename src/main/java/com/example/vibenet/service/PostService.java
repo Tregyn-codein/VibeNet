@@ -22,6 +22,10 @@ public class PostService {
         return postRepository.findAll();
     }
 
+    public List<Post> findAllPostsByOrderByCreatedAtDesc() {
+        return postRepository.findAllByOrderByCreatedAtDesc();
+    }
+
     public Optional<Post> findPostById(Long id) {
         return postRepository.findById(id);
     }
@@ -32,6 +36,10 @@ public class PostService {
 
     public void deletePost(Long id) {
         postRepository.deleteById(id);
+    }
+
+    public void save(Post post) {
+        postRepository.save(post);
     }
 
     // Дополнительные методы, связанные с бизнес-логикой постов
