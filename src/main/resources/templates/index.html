@@ -49,15 +49,23 @@
                         <input id="create-post-btn" type="submit" value="Опубликовать" class="btn btn-primary w-auto rounded-3"/>
                     </div>
                 </form>
-                <div class="posts" th:each="post: ${posts}">
-                    <div class="post rounded-1">
-                        <div class="user">
+                <div class="posts" th:each="post, iterStat: ${posts}">
+                    <div class="post rounded-3 p-3 my-2">
+                        <div class="user border-bottom mb-2 pb-3">
                             <div class="profile-pic">
-                                <img th:src="'data:image/png;base64,' + ${post.author.profilePicture}" alt="Default Image" />
+<!--                                <img th:src="'data:image/png;base64,' + ${post.author.profilePicture}" th:data-img="${post.author.profilePicture}" alt="Default Image" class="profile-pic-img" />-->
+                                <img th:if="${post.author.profilePicture}"
+                                     th:src="'data:image/png;base64,' + ${base64Images[__${iterStat.index}__]}"
+                                     alt="Profile Picture"
+                                     class="profile-pic-img"/>
+                                <img th:unless="${post.author.profilePicture}"
+                                     src="images/profile_image.png"
+                                     alt="Default Image"
+                                     class="profile-pic-img"/>
                             </div>
-                            <div class="info">
-                                <h3 th:text="${post.author.username}">Автор</h3>
-                                <time th:text="${#dates.format(post.createdAt, 'dd MMM yyyy в HH:mm')}"></time>
+                            <div class="post-info d-flex flex-column">
+                                <span th:text="${post.author.username}" class="h4 mb-0">Автор</span>
+                                <time th:text="${#dates.format(post.createdAt, 'dd MMM yyyy в HH:mm')}" class="text-white-50"></time>
                             </div>
                         </div>
 

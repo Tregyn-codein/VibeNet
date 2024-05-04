@@ -51,12 +51,26 @@ public class MainPage {
         return null; // Или возвращайте данные изображения по умолчанию
     }
 
+    public String convertBlobToBase64String(byte[] blob) {
+        return Base64.getEncoder().encodeToString(blob);
+    }
+
     @GetMapping("/")
     public String mainpage(@AuthenticationPrincipal OAuth2User principal, Model model) {
+        List<Post> posts = postService.findAllPostsByOrderByCreatedAtDesc();
+        List<String> base64Images = new ArrayList<>();
+
+        for (Post post : posts) {
+            String base64Image = convertBlobToBase64String(post.getAuthor().getProfilePicture());
+            base64Images.add(base64Image);
+        }
+
+        model.addAttribute("posts", posts);
+        model.addAttribute("base64Images", base64Images);
+
         model.addAttribute("user", currentUser(principal));
         model.addAttribute("username", currentUser(principal).getUsername());
         model.addAttribute("avatar", getProfilePictureAsBase64(currentUser(principal)));
-        model.addAttribute("posts", postService.findAllPostsByOrderByCreatedAtDesc());
         return "index"; // Возвращает имя шаблона без расширения .html
     }
 

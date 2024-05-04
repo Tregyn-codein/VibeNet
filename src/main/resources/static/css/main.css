@@ -128,12 +128,7 @@
 
 .feed .posts .post {
     width: 100%;
-    background: #283290ff;
-    border-radius: 5px;
-    padding: 1rem;
-    margin: 1rem 0;
-    font-size: 0.85rem;
-    line-height: 1.5;
+    background: rgba(40, 50, 144, 0.38);
 }
 
 .feed .post .head {
@@ -144,10 +139,31 @@
 .feed .post .user {
     display: flex;
     gap: 1rem;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+.feed .post .profile-pic {
+    padding: 0;
+    width: 50px;
+    height: 50px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    object-fit: cover;
+    overflow: hidden;
+    box-shadow: -1px 4px 10px 4px rgba(34, 60, 80, 0.22);
+}
+
+.feed .post .profile-pic img {
+    display: block;
+    width: 100%;
 }
 
 .feed .post .photo {
     border-radius: 5px;
     overflow: hidden;
     margin: 0.7rem 0;
+}
+
+.feed .post .post-info {
+    font-size: 14px;
 }
