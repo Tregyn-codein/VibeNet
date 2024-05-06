@@ -1,6 +1,5 @@
 $(document).ready(function() {
     // Открытие модального окна
-    console.log("Скрипт запущен")
     var csrfToken = $("meta[name='_csrf']").attr("content");
     var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 

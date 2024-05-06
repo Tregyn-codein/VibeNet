@@ -22,7 +22,11 @@
                 <img th:unless="${avatar}" src="images/profile_image.png" alt="Default Image" />
             </a>
         </div>
+
         <div class="log-buttons">
+            <div class="me-3">
+                <button class="btn btn-outline-info d-flex p-2" id="change-background"><span class="material-icons">palette</span></button>
+            </div>
             <form action="/logout" method="post">
                 <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
                 <button type="submit" class="btn btn-outline-danger p-2 d-flex" title="Выйти из аккаунта"><span class="material-icons">logout</span></button>
@@ -30,4 +34,11 @@
         </div>
 
     </nav>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script th:src="@{/js/script.js}"></script>
 </header>
+<div id="loading-indicator" style="display: none;">
+    <!-- Здесь может быть любой индикатор загрузки, например, спиннер -->
+    <div class="spinner">
+    </div>
+</div>
