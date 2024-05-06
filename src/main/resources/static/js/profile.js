@@ -55,6 +55,7 @@ $(document).ready(function() {
                 cropper.getCroppedCanvas().toBlob(function(blob) {
                     const formData = new FormData();
                     formData.append('croppedImage', blob);
+                    cropper.destroy();
                     $.ajax({
                         url: '/uploadPhoto',
                         type: 'POST',

@@ -49,11 +49,26 @@ $(document).ready(function() {
         }
     });
 
+    function trimEmptyLines(text) {
+        // Разбиваем текст на массив строк
+        let lines = text.split('\n');
+        // Удаляем пустые строки в начале
+        while (lines.length > 0 && lines[0].trim() === '') {
+            lines.shift();
+        }
+        // Удаляем пустые строки в конце
+        while (lines.length > 0 && lines[lines.length - 1].trim() === '') {
+            lines.pop();
+        }
+        // Объединяем массив обратно в строку
+        return lines.join('\n');
+    }
+
     $('.create-post').submit(function(event) {
         event.preventDefault(); // Предотвращаем стандартную отправку формы
 
         var formData = {
-            content: $('#create-post').val(),
+            content: trimEmptyLines($('#create-post').val()),
             onlyForFollowers: $('#visionSelect').val() === '2' // Пример, где '2' соответствует "Видно подписчикам"
         };
 
@@ -80,6 +95,25 @@ $(document).ready(function() {
                 // Обработка ошибок при отправке формы
                 console.error('Ошибка при отправке формы: ', error);
             }
+        });
+    });
+
+    $('.posts .post').each(function() {
+        var $postContent = $(this).find('.post-content');
+        var $showMoreBtn = $(this).find('.show-more');
+
+        var threshold = 2; // Порог в пикселях
+
+        // Проверяем, превышает ли высота содержимого высоту контейнера более чем на пороговое значение
+        if ($postContent.prop('scrollHeight') - $postContent.innerHeight() > threshold) {
+            $showMoreBtn.show(); // Если текст превышает высоту, показываем кнопку "Показать еще"
+        } else {
+            $showMoreBtn.hide(); // Иначе скрываем кнопку
+        }
+
+        $showMoreBtn.click(function() {
+            $postContent.css('max-height', 'none'); // Убираем ограничение по высоте
+            $(this).hide(); // Скрываем кнопку
         });
     });
 });

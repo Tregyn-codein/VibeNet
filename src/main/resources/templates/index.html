@@ -25,7 +25,7 @@
 
             </div>
             <div id="feed" class="feed glass-container col-7 d-flex flex-column p-3 ms-2 custom-scrollbar-css" >
-                <form class="create-post form p-3 rounded-5">
+                <form class="create-post form px-3 py-2 rounded-5">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <div id="row" class="row mx-auto justify-content-around">
                             <div class="profile-pic col-2 col-form-label">
@@ -53,7 +53,6 @@
                     <div class="post rounded-3 p-3 my-2">
                         <div class="user border-bottom mb-2 pb-3">
                             <div class="profile-pic">
-<!--                                <img th:src="'data:image/png;base64,' + ${post.author.profilePicture}" th:data-img="${post.author.profilePicture}" alt="Default Image" class="profile-pic-img" />-->
                                 <img th:if="${post.author.profilePicture}"
                                      th:src="'data:image/png;base64,' + ${base64Images[__${iterStat.index}__]}"
                                      alt="Profile Picture"
@@ -65,15 +64,17 @@
                             </div>
                             <div class="post-info d-flex flex-column">
                                 <span th:text="${post.author.username}" class="h4 mb-0">Автор</span>
-                                <time th:text="${#dates.format(post.createdAt, 'dd MMM yyyy в HH:mm')}" class="text-white-50"></time>
+                                <div class="text-white-50">
+                                    <time th:text="${#dates.format(post.createdAt, 'dd MMM yyyy в HH:mm')}"></time>
+                                    <span th:if="${post.onlyForFollowers}" class="ms-2">Для подписчиков</span>
+                                </div>
                             </div>
                         </div>
-
                         <div class="text">
-                            <span th:text="${post.content}"></span>
+                            <span th:text="${post.content}" style="white-space: pre-wrap" class="post-content" th:id="'post-content-' + ${iterStat.index}"></span>
+                            <button class="show-more" th:id="'show-more-' + ${iterStat.index}">Показать еще</button>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>

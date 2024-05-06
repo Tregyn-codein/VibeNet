@@ -53,7 +53,8 @@ a {
 
 .header {
     backdrop-filter: blur(4px);
-    background: rgb(33,30,59);
+    background: rgb(225, 23, 23);
+    /*background: rgb(33,30,59);*/
     background: linear-gradient(9deg, rgba(33,30,59,1) 45%, rgba(65,66,134,1) 100%);
     color: #fff;
     padding: 0 300px;
@@ -154,13 +155,12 @@ a {
     border-radius: 50%;
     margin-left: 10px;
     transition: all .1s linear;
+    box-shadow: 0px 0px 10px 4px rgba(34, 60, 80, 0.22);
 }
 
 .user-info img:hover {
     transform: scale(1.1);
-    /*border: solid 3px #ddd;*/
-    border-radius:5px;
-    Box-shadow:0px 1px 0px #ffffff,0px -1px 0px #ffffff,1px 0px 0px #ffffff,-1px 0px 0px #ffffff;
+    border-radius:10px;
 }
 
 .user-info span {

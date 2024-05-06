@@ -58,6 +58,7 @@
 
 .feed .create-post .profile-pic {
     padding: 0;
+    margin-top: 2px;
     width: 40px;
     height: 40px;
     aspect-ratio: 1/1;
@@ -166,4 +167,25 @@
 
 .feed .post .post-info {
     font-size: 14px;
+}
+
+.feed .post .post-content {
+    overflow: hidden;
+    display: block;
+    line-height: 1.2em;
+    max-height: 3.6em; /* Высота строки умноженная на количество строк для отображения */
+    text-align: justify;
+}
+
+.feed .post .show-more {
+    display: none; /* Скрываем кнопку по умолчанию */
+    cursor: pointer;
+    color: #82cde1;
+    background: rgba(0, 0, 0, 0);
+    border: none;
+    padding: 0;
+}
+
+.feed .post .show-more:hover {
+    color: #64cbdf;
 }

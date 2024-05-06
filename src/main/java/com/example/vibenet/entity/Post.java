@@ -1,6 +1,7 @@
 package com.example.vibenet.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,7 +26,7 @@ public class Post {
 
     @Getter
     @Setter
-    @Column(nullable = false)
+    @Column(nullable = false, length = 2000, columnDefinition = "TEXT")
     private String content;
 
     @Getter
