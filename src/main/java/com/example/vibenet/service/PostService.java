@@ -1,5 +1,6 @@
 package com.example.vibenet.service;
 
+import com.example.vibenet.entity.Image;
 import com.example.vibenet.entity.Post;
 import com.example.vibenet.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +39,10 @@ public class PostService {
         postRepository.deleteById(id);
     }
 
-    public void save(Post post) {
-        postRepository.save(post);
+    public Long save(Post post) {
+        return postRepository.save(post).getId();
     }
+
 
     // Дополнительные методы, связанные с бизнес-логикой постов
 }

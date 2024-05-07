@@ -44,8 +44,13 @@
                                 <option value="2">Видно подписчикам</option>
                             </select>
                         </div>
-                        <div class="col-6"></div>
+                        <div id="image-preview-container" class="col-5">
 
+                        </div>
+                        <div class="col-1 add-image-post btn btn-info d-flex">
+                            <label for="post-images" class="m-auto d-flex"><span class="material-icons text-center">image</span></label>
+                            <input type="file" name="images" id="post-images" multiple accept="image/*">
+                        </div>
                         <input id="create-post-btn" type="submit" value="Опубликовать" class="btn btn-primary w-auto rounded-3"/>
                     </div>
                 </form>
@@ -73,6 +78,30 @@
                         <div class="text">
                             <span th:text="${post.content}" style="white-space: pre-wrap" class="post-content" th:id="'post-content-' + ${iterStat.index}"></span>
                             <button class="show-more" th:id="'show-more-' + ${iterStat.index}">Показать еще</button>
+                        </div>
+                        <div class="pictures mt-1">
+                            <div th:if="${!postImagesMap[post.id].isEmpty()}" class="carousel slide" data-bs-ride="carousel" th:id="'carousel-' + ${post.id}">
+                                <div class="carousel-inner">
+                                    <div th:each="image, imgStat : ${postImagesMap[post.id]}" class="carousel-item" th:classappend="${imgStat.first} ? 'active'">
+                                        <div class="pict-bg rounded-4" th:style="'background: url(data:image/png;base64,' + ${image} + ') no-repeat center; background-size: cover;'">
+                                            <img th:src="'data:image/png;base64,' + ${image}" class="d-block w-100 rounded-4" alt="Post image">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${postImagesMap[post.id].size() > 1}">
+                                    <button class="carousel-control-prev" type="button" th:data-bs-target="'#carousel-' + ${post.id}" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" th:data-bs-target="'#carousel-' + ${post.id}" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
+                                    <div class="carousel-indicators">
+                                        <button th:each="image, imgStat : ${postImagesMap[post.id]}" type="button" th:data-bs-target="'#carousel-' + ${post.id}" th:data-bs-slide-to="${imgStat.index}" th:class="${imgStat.first} ? 'active' : ''" aria-current="true" aria-label="Slide"></button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

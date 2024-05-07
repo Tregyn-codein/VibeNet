@@ -33,8 +33,6 @@ $(document).ready(function() {
         }
     }
 
-    console.log("Скрипт хэдера")
-
     // Обработчик клика по кнопке
     $('#change-background').click(changeBackground);
     $(window).trigger('load');

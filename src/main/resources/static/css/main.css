@@ -120,11 +120,50 @@
     background: #5866d7ff;
     color: #ffffff;
     border: none;
+    max-height: 38px;
 }
 
 .feed .create-post #create-post-btn:hover {
     background: #3f4bbc;
 
+}
+
+.feed .create-post .add-image-post {
+    color: #ffffff;
+    max-height: 38px;
+}
+
+.feed .create-post .add-image-post #post-images{
+    display: none;
+}
+
+.feed .create-post #image-preview-container{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.feed .create-post #image-preview-container .preview-image-slot{
+    position: relative;
+}
+
+.feed .create-post #image-preview-container .preview-image{
+    width: 100px;
+    height: 100px;
+    object-fit: scale-down;
+}
+
+.feed .create-post #image-preview-container .remove-image-button{
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 3px;
+    position: absolute;
+    right: 0;
+    bottom: 0;
 }
 
 .feed .posts .post {
@@ -189,3 +228,24 @@
 .feed .post .show-more:hover {
     color: #64cbdf;
 }
+
+.feed .post .pictures{
+    max-height: 384px;
+    max-width: 683px;
+    /*display: flex;*/
+    /*justify-content: center;*/
+    /*align-items: center;*/
+    overflow: hidden;
+    background-size: cover;
+}
+
+.feed .post .pictures .blur-bg{
+}
+
+.feed .post .pictures img{
+    max-height: 384px;
+    max-width: 683px;
+    object-fit: contain;
+    backdrop-filter: blur(10px);
+}
+

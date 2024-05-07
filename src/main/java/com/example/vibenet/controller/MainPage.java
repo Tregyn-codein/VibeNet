@@ -1,7 +1,9 @@
 package com.example.vibenet.controller;
 
+import com.example.vibenet.entity.Image;
 import com.example.vibenet.entity.User;
 import com.example.vibenet.entity.Post;
+import com.example.vibenet.service.ImageService;
 import com.example.vibenet.service.UserService;
 import com.example.vibenet.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -23,11 +26,13 @@ public class MainPage {
 
     private final UserService userService;
     private final PostService postService;
+    private final ImageService imageService;
 
     @Autowired
-    public MainPage(UserService userService, PostService postService) {
+    public MainPage(UserService userService, PostService postService, ImageService imageService) {
         this.userService = userService;
         this.postService = postService;
+        this.imageService = imageService;
     }
 
     public User currentUser(@AuthenticationPrincipal OAuth2User principal) {
@@ -59,15 +64,22 @@ public class MainPage {
     public String mainpage(@AuthenticationPrincipal OAuth2User principal, Model model) {
         List<Post> posts = postService.findAllPostsByOrderByCreatedAtDesc();
         List<String> base64Images = new ArrayList<>();
+        Map<Long, List<String>> postImagesMap = new HashMap<>();
 
         for (Post post : posts) {
             String base64Image = convertBlobToBase64String(post.getAuthor().getProfilePicture());
             base64Images.add(base64Image);
+            List<String> imagesBase64 = imageService.getImagesByPost(post).stream()
+                    .map(image -> convertBlobToBase64String(image.getImage()))
+                    .collect(Collectors.toList());
+            postImagesMap.put(post.getId(), imagesBase64);
         }
+
+        System.out.println(postImagesMap);
 
         model.addAttribute("posts", posts);
         model.addAttribute("base64Images", base64Images);
-
+        model.addAttribute("postImagesMap", postImagesMap);
         model.addAttribute("user", currentUser(principal));
         model.addAttribute("username", currentUser(principal).getUsername());
         model.addAttribute("avatar", getProfilePictureAsBase64(currentUser(principal)));
@@ -75,17 +87,25 @@ public class MainPage {
     }
 
     @PostMapping("/create-post")
-    public ResponseEntity<?> createPost(@RequestBody Map<String, Object> postData,
+    public ResponseEntity<?> createPost(@RequestParam("content") String content,
+                                        @RequestParam("onlyForFollowers") Boolean onlyForFollowers,
+                                        @RequestPart("images") MultipartFile[] images,
                                         @AuthenticationPrincipal OAuth2User principal) {
         // Создание нового поста на основе данных из postData
         Post post = new Post();
-        post.setContent((String) postData.get("content"));
+        post.setContent(content);
         post.setAuthor(currentUser(principal));
         post.setCreatedAt(new Date());
-        post.setOnlyForFollowers((Boolean) postData.get("onlyForFollowers"));
+        post.setOnlyForFollowers(onlyForFollowers);
 
         // Сохранение поста в базе данных
-        postService.save(post);
+        Long postId = postService.save(post);
+
+        Post savedPost = postService.findPostById(postId).orElse(null);
+
+        for (MultipartFile imageFile : images) {
+            imageService.saveImage(savedPost, imageFile);
+        }
 
         // Возвращаем ответ
         return ResponseEntity.ok(Collections.singletonMap("message", "Пост успешно создан"));
