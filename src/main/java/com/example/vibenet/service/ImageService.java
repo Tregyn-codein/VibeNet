@@ -41,5 +41,9 @@ public class ImageService {
         return imageRepository.findByPost(post);
     }
 
+    public void deleteImagesByPost(Post post) {
+        List<Image> images = getImagesByPost(post);
+        imageRepository.deleteAll(images);
+    }
     // Другие методы для работы с изображениями...
 }

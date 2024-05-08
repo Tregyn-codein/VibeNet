@@ -196,6 +196,33 @@ $(document).ready(function() {
         });
     });
 
-    $('.carousel').carousel({
+    $('.carousel').carousel();
+
+    function deletePost(postId) {
+        var csrfToken = $("meta[name='_csrf']").attr("content");
+        var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+        $.ajax({
+            url: '/delete-post/' + postId, // Предполагается, что у вас есть такой маршрут на сервере
+            type: 'DELETE',
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(csrfHeader, csrfToken);
+            },
+            success: function(result) {
+                // Удаление поста из DOM или показ сообщения об успехе
+                console.log('Пост успешно удален');
+                // Например, удалить элемент поста из DOM
+                $('div.post[data-post-id="' + postId + '"]').remove();
+            },
+            error: function(xhr, status, error) {
+                // Обработка ошибки
+                console.error('Ошибка удаления поста:', error);
+            }
+        });
+    }
+
+    $('.delete-post-btn').on('click', function() {
+        var postId = $(this).data('post-id');
+        deletePost(postId);
     });
 });

@@ -1,12 +1,12 @@
 package com.example.vibenet.controller;
 
-import com.example.vibenet.entity.Image;
 import com.example.vibenet.entity.User;
 import com.example.vibenet.entity.Post;
 import com.example.vibenet.service.ImageService;
 import com.example.vibenet.service.UserService;
 import com.example.vibenet.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -75,8 +74,18 @@ public class MainPage {
             postImagesMap.put(post.getId(), imagesBase64);
         }
 
-        System.out.println(postImagesMap);
 
+        // Получаем количество постов от автора
+        long postsCountByAuthor = postService.countPostsByAuthor(currentUser(principal));
+        // Получаем общее количество постов
+        long totalPostsCount = postService.countAllPosts();
+        // Получаем количество постов за сегодня
+        long todayPostsCount = postService.countPostsFromToday();
+
+        // Добавляем данные в модель
+        model.addAttribute("postsCountByAuthor", postsCountByAuthor);
+        model.addAttribute("totalPostsCount", totalPostsCount);
+        model.addAttribute("todayPostsCount", todayPostsCount);
         model.addAttribute("posts", posts);
         model.addAttribute("base64Images", base64Images);
         model.addAttribute("postImagesMap", postImagesMap);
@@ -100,15 +109,39 @@ public class MainPage {
 
         // Сохранение поста в базе данных
         Long postId = postService.save(post);
-
         Post savedPost = postService.findPostById(postId).orElse(null);
 
         for (MultipartFile imageFile : images) {
-            imageService.saveImage(savedPost, imageFile);
+            if (!imageFile.isEmpty()) {
+                imageService.saveImage(savedPost, imageFile);
+            }
         }
 
         // Возвращаем ответ
         return ResponseEntity.ok(Collections.singletonMap("message", "Пост успешно создан"));
+    }
+
+    @DeleteMapping("/delete-post/{postId}")
+    @ResponseBody
+    public ResponseEntity<?> deletePost(@PathVariable Long postId, @AuthenticationPrincipal OAuth2User principal) {
+
+        // Находим пост по id
+        Optional<Post> post = postService.findPostById(postId);
+        if (post.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Проверяем, является ли текущий пользователь автором поста
+        if (!post.get().getAuthor().getUsername().equals(currentUser(principal).getUsername())) {
+            // Если нет, возвращаем статус запрещено
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Вы не можете удалить этот пост");
+        }
+
+        // Удаляем пост
+        postService.deletePost(postId);
+
+        // Возвращаем ответ об успешном удалении
+        return ResponseEntity.ok().body("Пост успешно удален");
     }
 
 }

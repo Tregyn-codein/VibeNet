@@ -20,9 +20,24 @@
 <div th:replace="~{fragments/header :: header}"></div>
 <div class="blur overflow-hidden">
     <div class="container">
-        <div class="row justify-content-center">
+        <div class="main-container row justify-content-center">
             <div class="info glass-container col-2 d-flex flex-column p-3">
-
+                <div class="stats mt-2 pt-2 border-top">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td>Ваших постов:</td>
+                            <td th:text="${postsCountByAuthor}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Постов сегодня:</td>
+                            <td th:text="${todayPostsCount}">0</td>
+                        </tr>
+                        <tr>
+                            <td>Постов всего:</td>
+                            <td th:text="${totalPostsCount}">0</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
             <div id="feed" class="feed glass-container col-7 d-flex flex-column p-3 ms-2 custom-scrollbar-css" >
                 <form class="create-post form px-3 py-2 rounded-5">
@@ -55,7 +70,7 @@
                     </div>
                 </form>
                 <div class="posts" th:each="post, iterStat: ${posts}">
-                    <div class="post rounded-3 p-3 my-2">
+                    <div class="post rounded-3 p-3 my-2" th:data-post-id="${post.id}">
                         <div class="user border-bottom mb-2 pb-3">
                             <div class="profile-pic">
                                 <img th:if="${post.author.profilePicture}"
@@ -74,13 +89,19 @@
                                     <span th:if="${post.onlyForFollowers}" class="ms-2">Для подписчиков</span>
                                 </div>
                             </div>
+                            <div class="gap flex-grow-1"></div>
+                            <div class="delete-post align-self-start" th:if="${post.author.username == username}">
+                                <button type="button" class="delete-post-btn btn btn-danger p-0 d-flex" th:attr="data-post-id=${post.id}">
+                                    <span class="material-icons">delete</span>
+                                </button>
+                            </div>
                         </div>
                         <div class="text">
                             <span th:text="${post.content}" style="white-space: pre-wrap" class="post-content" th:id="'post-content-' + ${iterStat.index}"></span>
                             <button class="show-more" th:id="'show-more-' + ${iterStat.index}">Показать еще</button>
                         </div>
-                        <div class="pictures mt-1">
-                            <div th:if="${!postImagesMap[post.id].isEmpty()}" class="carousel slide" data-bs-ride="carousel" th:id="'carousel-' + ${post.id}">
+                        <div class="pictures mt-2">
+                            <div th:if="${!postImagesMap[post.id].isEmpty()}" class="carousel slide" data-bs-ride="false" data-bs-interval="false" th:id="'carousel-' + ${post.id}">
                                 <div class="carousel-inner">
                                     <div th:each="image, imgStat : ${postImagesMap[post.id]}" class="carousel-item" th:classappend="${imgStat.first} ? 'active'">
                                         <div class="pict-bg rounded-4" th:style="'background: url(data:image/png;base64,' + ${image} + ') no-repeat center; background-size: cover;'">

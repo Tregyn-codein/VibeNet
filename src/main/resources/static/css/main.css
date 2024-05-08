@@ -41,8 +41,27 @@
     background-image: radial-gradient(circle, rgba(228,228,228,0.5) 68%, rgba(145,145,145,0.5) 100%);
 }
 
+.main-container{
+    align-items: flex-start;
+}
+
 .info {
     background: rgba(0, 0, 0, 0.3);
+    height: auto;
+}
+
+.info .stats{
+    border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+.info .stats table{
+    margin: 0;
+}
+
+.info .stats table td{
+    background: rgba(255, 255, 255, 0);
+    color: #ffffff;
+
 }
 
 .feed {
@@ -231,10 +250,7 @@
 
 .feed .post .pictures{
     max-height: 384px;
-    max-width: 683px;
-    /*display: flex;*/
-    /*justify-content: center;*/
-    /*align-items: center;*/
+    max-width: 100%;
     overflow: hidden;
     background-size: cover;
 }
@@ -244,7 +260,6 @@
 
 .feed .post .pictures img{
     max-height: 384px;
-    max-width: 683px;
     object-fit: contain;
     backdrop-filter: blur(10px);
 }
