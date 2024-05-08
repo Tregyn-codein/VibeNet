@@ -6,6 +6,7 @@ target/
 
 src/main/resources/token.env
 src/main/resources/application-dev.properties
+.env
 
 ### STS ###
 .apt_generated
