@@ -5,6 +5,12 @@ $(window).on('load', function() {
 });
 
 $(document).ready(function() {
+
+    if (!localStorage.getItem('background')){
+        console.log(!localStorage.getItem('background'));
+        localStorage.setItem('background', 'bg-blue');
+    }
+
     $('#loading-indicator').show();
     // Проверяем сохраненный выбор фона и применяем его
     var savedBackground = localStorage.getItem('background');
@@ -32,6 +38,7 @@ $(document).ready(function() {
             localStorage.setItem('background', 'bg-blue');
         }
     }
+
 
     // Обработчик клика по кнопке
     $('#change-background').click(changeBackground);
