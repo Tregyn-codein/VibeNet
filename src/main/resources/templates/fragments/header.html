@@ -1,38 +1,38 @@
-<header xmlns:th="http://www.thymeleaf.org" th:fragment="header" class="header">
-    <nav>
-        <div>
-            <!-- Логотип и ссылка на главную страницу -->
-            <a href="/" th:href="@{/}" class="logo">
-                <span class="material-icons logo-pic">leak_add</span>
-                <span>VibeNet</span>
-            </a>
-        </div>
-        <div>
-            <!-- Строка поиска -->
-            <form th:action="@{/search}" method="get" class="search-bar">
-                <input type="text" name="query" placeholder="Найти пост" />
-                <button type="submit"><span class="material-icons">search</span></button>
-            </form>
-        </div>
-        <div>
-            <!-- Информация о пользователе и ссылка на профиль -->
-            <a href="/profile" th:href="@{/profile}" class="user-info" title="Перейти в личный кабинет">
-                <span th:text="${username}">User Name</span>
-                <img th:if="${avatar}" th:src="'data:image/png;base64,' + ${avatar}" alt="Profile Picture" />
-                <img th:unless="${avatar}" src="images/profile_image.png" alt="Default Image" />
-            </a>
-        </div>
-
-        <div class="log-buttons">
-            <div class="me-3">
-                <button class="btn btn-outline-info d-flex p-2" id="change-background"><span class="material-icons">palette</span></button>
+<header xmlns:th="http://www.thymeleaf.org" th:fragment="header" class="header container m-0 mw-100">
+    <nav class="navbar">
+        <div class="container flex-nowrap">
+            <div>
+                <!-- Логотип и ссылка на главную страницу -->
+                <a href="/" th:href="@{/}" class="logo">
+                    <span class="material-icons logo-pic">leak_add</span>
+                    <span>VibeNet</span>
+                </a>
             </div>
-            <form action="/logout" method="post">
-                <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
-                <button type="submit" class="btn btn-outline-danger p-2 d-flex" title="Выйти из аккаунта"><span class="material-icons">logout</span></button>
-            </form>
+            <div class="d-md-none d-lg-block">
+                <!-- Строка поиска -->
+                <form th:action="@{/search}" method="get" class="search-bar">
+                    <input type="text" name="query" placeholder="Найти пост" />
+                    <button type="submit"><span class="material-icons">search</span></button>
+                </form>
+            </div>
+            <div>
+                <!-- Информация о пользователе и ссылка на профиль -->
+                <a href="/profile" th:href="@{/profile}" class="user-info" title="Перейти в личный кабинет">
+                    <span th:text="${username}">User Name</span>
+                    <img th:if="${avatar}" th:src="'data:image/png;base64,' + ${avatar}" alt="Profile Picture" />
+                    <img th:unless="${avatar}" src="images/profile_image.png" alt="Default Image" />
+                </a>
+            </div>
+            <div class="log-buttons">
+                <div class="me-3">
+                    <button class="btn btn-outline-info d-flex p-2" id="change-background"><span class="material-icons">palette</span></button>
+                </div>
+                <form action="/logout" method="post">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                    <button type="submit" class="btn btn-outline-danger p-2 d-flex" title="Выйти из аккаунта"><span class="material-icons">logout</span></button>
+                </form>
+            </div>
         </div>
-
     </nav>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script th:src="@{/js/script.js}"></script>
