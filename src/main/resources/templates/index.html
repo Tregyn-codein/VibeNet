@@ -20,8 +20,8 @@
 <div th:replace="~{fragments/header :: header}"></div>
 <div class="blur overflow-hidden">
     <div class="container">
-        <div class="main-container row justify-content-center">
-            <div class="info glass-container col-2 d-flex flex-column p-3">
+        <div class="main-container row justify-content-center flex-nowrap">
+            <div class="info glass-container col-3 d-flex flex-column p-3">
                 <div class="stats mt-2 pt-2 border-top">
                     <table class="table table-borderless">
                         <tr>
@@ -39,10 +39,10 @@
                     </table>
                 </div>
             </div>
-            <div id="feed" class="feed glass-container col-7 d-flex flex-column p-3 ms-2 custom-scrollbar-css" >
+            <div id="feed" class="feed glass-container col-9 d-flex flex-column p-3 ms-2 custom-scrollbar-css" >
                 <form class="create-post form px-3 py-2 rounded-5">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <div id="row" class="row mx-auto justify-content-around">
+                    <div id="row" class="row mx-auto justify-content-around flex-nowrap">
                             <div class="profile-pic col-2 col-form-label">
                                 <img th:if="${avatar}" th:src="'data:image/png;base64,' + ${avatar}" alt="Profile Picture" />
                                 <img th:unless="${avatar}" src="images/profile_image.png" alt="Default Image" />
@@ -52,7 +52,7 @@
                                          class="form-control" rows="1"></textarea>
                             </div>
                     </div>
-                    <div id="row2" class="row mx-auto justify-content-between" style="display: none">
+                    <div id="row2" class="row mx-auto justify-content-between flex-nowrap" style="display: none">
                         <div class="col-3">
                             <select class="visionSelect form-select border-0 px-0 w-auto" name="visionSelect" id="visionSelect">
                                 <option value="1" selected>Видно всем</option>
