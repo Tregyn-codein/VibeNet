@@ -73,7 +73,7 @@ a {
     min-height: 100%;
     max-width: inherit;
     backdrop-filter: blur(5px);
-    padding: 20px 300px 0 300px;
+    padding: 20px 50px;
 }
 
 .header {
