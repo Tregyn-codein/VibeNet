@@ -9,7 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ImageService {
@@ -39,6 +43,18 @@ public class ImageService {
 
     public List<Image> getImagesByPost(Post post) {
         return imageRepository.findByPost(post);
+    }
+
+    public Map<Long, List<String>> getImagesByPostIds(List<Long> postIds) {
+        Map<Long, List<String>> postImagesMap = new HashMap<>();
+        for (Long postId : postIds) {
+            List<Image> images = imageRepository.findByPostId(postId);
+            List<String> imagesBase64 = images.stream()
+                    .map(image -> Base64.getEncoder().encodeToString(image.getImage()))
+                    .collect(Collectors.toList());
+            postImagesMap.put(postId, imagesBase64);
+        }
+        return postImagesMap;
     }
 
     public void deleteImagesByPost(Post post) {

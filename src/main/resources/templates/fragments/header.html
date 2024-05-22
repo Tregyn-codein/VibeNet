@@ -18,7 +18,7 @@
             <div>
                 <!-- Информация о пользователе и ссылка на профиль -->
                 <a href="/profile" th:href="@{/profile}" class="user-info" title="Перейти в личный кабинет">
-                    <span th:text="${username}">User Name</span>
+                    <span th:text="${username}" id="username">User Name</span>
                     <img th:if="${avatar}" th:src="'data:image/png;base64,' + ${avatar}" alt="Profile Picture" />
                     <img th:unless="${avatar}" src="images/profile_image.png" alt="Default Image" />
                 </a>

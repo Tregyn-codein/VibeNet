@@ -6,6 +6,10 @@ import com.example.vibenet.service.ImageService;
 import com.example.vibenet.service.UserService;
 import com.example.vibenet.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,19 +65,26 @@ public class MainPage {
 
     @GetMapping("/")
     public String mainpage(@AuthenticationPrincipal OAuth2User principal, Model model) {
-        List<Post> posts = postService.findAllPostsByOrderByCreatedAtDesc();
-        List<String> base64Images = new ArrayList<>();
-        Map<Long, List<String>> postImagesMap = new HashMap<>();
+        int page = 0; // Начинаем с первой страницы
+        int size = 10; // Количество постов на странице
 
-        for (Post post : posts) {
-            String base64Image = convertBlobToBase64String(post.getAuthor().getProfilePicture());
-            base64Images.add(base64Image);
-            List<String> imagesBase64 = imageService.getImagesByPost(post).stream()
-                    .map(image -> convertBlobToBase64String(image.getImage()))
-                    .collect(Collectors.toList());
-            postImagesMap.put(post.getId(), imagesBase64);
-        }
+//        Page<Post> postsPage = postService.findPaginatedPosts(page, size);
 
+        // Собираем ID постов для получения изображений
+//        List<Long> postIds = postsPage.getContent().stream().map(Post::getId).collect(Collectors.toList());
+//        Map<Long, List<String>> postImagesMap = imageService.getImagesByPostIds(postIds);
+
+//        model.addAttribute("posts", postsPage.getContent());
+//        model.addAttribute("postImagesMap", postImagesMap);
+//        model.addAttribute("currentPage", page);
+//        model.addAttribute("totalPages", postsPage.getTotalPages());
+
+//        List<String> base64Images = new ArrayList<>();
+
+//        for (Post post : postsPage.getContent()) {
+//            String base64Image = convertBlobToBase64String(post.getAuthor().getProfilePicture());
+//            base64Images.add(base64Image);
+//        }
 
         // Получаем количество постов от автора
         long postsCountByAuthor = postService.countPostsByAuthor(currentUser(principal));
@@ -86,13 +97,19 @@ public class MainPage {
         model.addAttribute("postsCountByAuthor", postsCountByAuthor);
         model.addAttribute("totalPostsCount", totalPostsCount);
         model.addAttribute("todayPostsCount", todayPostsCount);
-        model.addAttribute("posts", posts);
-        model.addAttribute("base64Images", base64Images);
-        model.addAttribute("postImagesMap", postImagesMap);
+//        model.addAttribute("base64Images", base64Images);
         model.addAttribute("user", currentUser(principal));
         model.addAttribute("username", currentUser(principal).getUsername());
         model.addAttribute("avatar", getProfilePictureAsBase64(currentUser(principal)));
         return "index"; // Возвращает имя шаблона без расширения .html
+    }
+
+    @GetMapping("/loadMorePosts")
+    public ResponseEntity<Page<Map<String, Object>>> loadMorePosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<Map<String, Object>> postsWithImages = postService.findPaginatedPostsWithImages(page, size);
+        return ResponseEntity.ok(postsWithImages);
     }
 
     @PostMapping("/create-post")

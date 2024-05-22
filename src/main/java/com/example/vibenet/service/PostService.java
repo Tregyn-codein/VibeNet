@@ -4,13 +4,17 @@ import com.example.vibenet.entity.Post;
 import com.example.vibenet.entity.User;
 import com.example.vibenet.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -74,5 +78,30 @@ public class PostService {
         LocalDateTime startOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
         LocalDateTime endOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
         return postRepository.countPostsFromToday(startOfDay, endOfDay);
+    }
+
+    public Page<Post> findPaginatedPosts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return postRepository.findAll(pageable);
+    }
+
+    public Page<Map<String, Object>> findPaginatedPostsWithImages(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postsPage = postRepository.findAll(pageable);
+
+        return postsPage.map(post -> {
+            Map<String, Object> postMap = new HashMap<>();
+            postMap.put("id", post.getId());
+            postMap.put("content", post.getContent());
+            postMap.put("createdAt", post.getCreatedAt());
+            postMap.put("author", post.getAuthor());
+            postMap.put("onlyForFollowers", post.getOnlyForFollowers());
+            List<String> imagesBase64 = imageService.getImagesByPost(post).stream()
+                    .map(image -> Base64.getEncoder().encodeToString(image.getImage()))
+                    .collect(Collectors.toList());
+            postMap.put("images", imagesBase64);
+
+            return postMap;
+        });
     }
 }

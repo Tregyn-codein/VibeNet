@@ -185,7 +185,7 @@
     bottom: 0;
 }
 
-.feed .posts .post {
+.feed .post {
     width: 100%;
     background: rgba(40, 50, 144, 0.38);
 }
@@ -227,16 +227,36 @@
     font-size: 14px;
 }
 
+/*.feed .post .post-content {*/
+/*    overflow: hidden;*/
+/*    display: block;*/
+/*    line-height: 1.2em;*/
+/*    max-height: 3.6em; !* Высота строки умноженная на количество строк для отображения *!*/
+/*    text-align: justify;*/
+/*}*/
+
 .feed .post .post-content {
-    overflow: hidden;
     display: block;
     line-height: 1.2em;
     max-height: 3.6em; /* Высота строки умноженная на количество строк для отображения */
-    text-align: justify;
+    /*max-height: 4.5em; !* Предполагая, что высота одной строки текста ~1.5em *!*/
+    overflow: hidden;
+}
+
+.feed .post .post-content.uncollapsed{
+    max-height: none;
+}
+
+.feed .post .post-content.collapsed {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* число строк для отображения */
+    -webkit-box-orient: vertical;
 }
 
 .feed .post .show-more {
-    display: none; /* Скрываем кнопку по умолчанию */
+    /*display: none; !* Скрываем кнопку по умолчанию *!*/
     cursor: pointer;
     color: #82cde1;
     background: rgba(0, 0, 0, 0);

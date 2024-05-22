@@ -64,6 +64,295 @@ $(document).ready(function() {
         return lines.join('\n');
     }
 
+    let currentPage = 0;
+    const size = 10; // Количество постов на одной странице
+    let isLoading = false;
+
+    // Функция для загрузки и добавления постов в контейнер
+    function loadMorePosts() {
+        if (isLoading) return;
+        isLoading = true;
+        $('#loading').show();
+
+        $.ajax({
+            url: `/loadMorePosts?page=${currentPage}&size=${size}`,
+            type: 'GET',
+            success: function(postsPage) {
+                if (postsPage.content.length === 0) {
+                    $('#loading').hide();
+                    return;
+                }
+                postsPage.content.forEach(post => {
+                    const postElement = createPostElement(post);
+                    $('#feed').append(postElement);
+                    // Инициализируем карусель Bootstrap для каждого добавленного элемента поста
+                    if (post.images && post.images.length > 0) {
+                        var carouselElement = document.querySelector('#carousel-' + post.id);
+                        var carousel = new bootstrap.Carousel(carouselElement);
+                    }
+                });
+                currentPage++;
+                isLoading = false;
+                $('#loading').hide();
+            },
+            error: function(error) {
+                console.error('Error loading more posts:', error);
+                isLoading = false;
+                $('#loading').hide();
+            }
+        });
+    }
+
+    function createPostElement(post) {
+        // Создаем внешний контейнер для поста
+        const postElement = document.createElement('div');
+        postElement.className = 'post rounded-3 p-3 my-2';
+        postElement.setAttribute('data-post-id', post.id);
+
+        // Создаем контейнер для информации о пользователе и посте
+        const userContainer = document.createElement('div');
+        userContainer.className = 'user border-bottom mb-2 pb-3';
+
+        // Создаем изображение профиля
+        const profilePicDiv = document.createElement('div');
+        profilePicDiv.className = 'profile-pic';
+        const profilePicImg = document.createElement('img');
+        profilePicImg.className = 'profile-pic-img';
+        profilePicImg.src = post.author.profilePicture ? `data:image/png;base64,${post.author.profilePicture}` : 'images/profile_image.png';
+        profilePicImg.alt = 'Profile Picture';
+        profilePicDiv.appendChild(profilePicImg);
+
+        // Создаем информацию о посте (автор, дата)
+        const postInfoDiv = document.createElement('div');
+        postInfoDiv.className = 'post-info d-flex flex-column';
+        const authorNameSpan = document.createElement('span');
+        authorNameSpan.className = 'h4 mb-0';
+        authorNameSpan.textContent = post.author.username; // Имя автора
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'text-white-50';
+        const timeElement = document.createElement('time');
+
+        // Форматируем дату и время в соответствии с вашим форматом
+        const createdAt = new Date(post.createdAt);
+        const options = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
+        // Убедитесь, что используете 'ru-RU' для русского формата даты
+        const formattedDate = createdAt.toLocaleDateString('ru-RU', options);
+
+        timeElement.textContent = `${formattedDate}`;
+        dateDiv.appendChild(timeElement);
+
+        if (post.onlyForFollowers) {
+            const followersSpan = document.createElement('span');
+            followersSpan.className = 'ms-2';
+            followersSpan.textContent = 'Для подписчиков';
+            dateDiv.appendChild(followersSpan);
+        }
+        postInfoDiv.appendChild(authorNameSpan);
+        postInfoDiv.appendChild(dateDiv);
+
+        // Собираем контейнер пользователя
+        userContainer.appendChild(profilePicDiv);
+        userContainer.appendChild(postInfoDiv);
+
+        // Создаем кнопку удаления поста, если текущий пользователь является автором
+        if (post.author.username === $("#username").text()) {
+            const gap = document.createElement('div');
+            gap.className = 'gap flex-grow-1';
+
+            const deletePostDiv = document.createElement('div');
+            deletePostDiv.className = 'delete-post align-self-start';
+
+            const deleteButton = document.createElement('button');
+            deleteButton.setAttribute('type', 'button');
+            deleteButton.className = 'delete-post-btn btn btn-danger p-0 d-flex';
+            deleteButton.setAttribute('data-post-id', post.id);
+
+            const deleteIcon = document.createElement('span');
+            deleteIcon.className = 'material-icons';
+            deleteIcon.textContent = 'delete';
+
+            deleteButton.appendChild(deleteIcon);
+            deletePostDiv.appendChild(deleteButton);
+
+            // // Добавляем обработчик событий для кнопки удаления
+            deleteButton.addEventListener('click', function() {
+                // Здесь логика для удаления поста
+                // Например, отправка AJAX запроса на сервер для удаления поста
+                var csrfToken = $("meta[name='_csrf']").attr("content");
+                var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+                console.log("Начинаю удаление")
+
+                $.ajax({
+                    url: '/delete-post/' + post.id, // Предполагается, что у вас есть такой маршрут на сервере
+                    type: 'DELETE',
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader(csrfHeader, csrfToken);
+                    },
+                    success: function(result) {
+                        // Удаление поста из DOM или показ сообщения об успехе
+                        console.log('Пост успешно удален');
+                        // Например, удалить элемент поста из DOM
+                        $('div.post[data-post-id="' + post.id + '"]').remove();
+                    },
+                    error: function(xhr, status, error) {
+                        // Обработка ошибки
+                        console.error('Ошибка удаления поста:', error);
+                    }
+                });
+            });
+
+            // Добавляем кнопку удаления в контейнер пользователя
+            userContainer.appendChild(gap);
+            userContainer.appendChild(deletePostDiv);
+        }
+
+        // Создаем текст поста
+        const textDiv = document.createElement('div');
+        textDiv.className = 'text';
+        const postContentSpan = document.createElement('span');
+        postContentSpan.className = 'post-content';
+        postContentSpan.textContent = post.content; // Текст поста
+        postContentSpan.style.whiteSpace = 'pre-wrap'; // Сохраняем форматирование текста
+        textDiv.appendChild(postContentSpan);
+
+        // Создаем кнопку "Показать еще"
+        const showMoreBtn = document.createElement('button');
+        showMoreBtn.className = 'show-more';
+        showMoreBtn.textContent = 'Показать еще';
+        // Добавляем обработчик событий для кнопки "Показать еще"
+        showMoreBtn.addEventListener('click', function() {
+            if (postContentSpan.classList.contains('collapsed')) {
+                postContentSpan.classList.remove('collapsed'); // Раскрываем текст
+                postContentSpan.classList.add('uncollapsed'); // Раскрываем текст
+                showMoreBtn.textContent = 'Скрыть';
+            } else {
+                postContentSpan.classList.add('collapsed'); // Скрываем текст
+                postContentSpan.classList.remove('uncollapsed'); // Раскрываем текст
+                showMoreBtn.textContent = 'Показать еще';
+            }
+        });
+
+        // Проверяем, нужно ли добавить класс collapsed и кнопку "Показать еще"
+        // Это делается после добавления postContentSpan в DOM, чтобы корректно измерить высоту
+        setTimeout(() => {
+            if (postContentSpan.scrollHeight > postContentSpan.clientHeight+2) {
+                postContentSpan.classList.add('collapsed');
+                textDiv.appendChild(showMoreBtn);
+            }
+        }, 0);
+
+        // Создаем контейнер для изображений
+        const imagesContainer = document.createElement('div');
+        imagesContainer.className = 'pictures mt-2';
+
+        if (post.images && post.images.length > 0) {
+            const carouselDiv = document.createElement('div');
+            carouselDiv.className = 'carousel slide';
+            carouselDiv.setAttribute('data-bs-ride', 'false');
+            carouselDiv.setAttribute('data-bs-interval', 'false');
+            carouselDiv.id = 'carousel-' + post.id;
+
+            const carouselInnerDiv = document.createElement('div');
+            carouselInnerDiv.className = 'carousel-inner';
+
+            post.images.forEach((image, index) => {
+                const carouselItemDiv = document.createElement('div');
+                carouselItemDiv.className = 'carousel-item' + (index === 0 ? ' active' : '');
+
+                const pictBgDiv = document.createElement('div');
+                pictBgDiv.className = 'pict-bg rounded-4';
+                pictBgDiv.style.background = `url(data:image/png;base64,${image}) no-repeat center`;
+                pictBgDiv.style.backgroundSize = 'cover';
+
+                const imgTag = document.createElement('img');
+                imgTag.src = `data:image/png;base64,${image}`;
+                imgTag.className = 'd-block w-100 rounded-4';
+                imgTag.alt = 'Post image';
+
+                pictBgDiv.appendChild(imgTag);
+                carouselItemDiv.appendChild(pictBgDiv);
+                carouselInnerDiv.appendChild(carouselItemDiv);
+            });
+
+            carouselDiv.appendChild(carouselInnerDiv);
+            imagesContainer.appendChild(carouselDiv);
+
+            // Добавляем элементы управления каруселью, если изображений больше одного
+            if (post.images.length > 1) {
+                const prevButton = document.createElement('button');
+                prevButton.className = 'carousel-control-prev';
+                prevButton.type = 'button';
+                prevButton.setAttribute('data-bs-target', '#carousel-' + post.id);
+                prevButton.setAttribute('data-bs-slide', 'prev');
+
+                const prevIcon = document.createElement('span');
+                prevIcon.className = 'carousel-control-prev-icon';
+                prevIcon.setAttribute('aria-hidden', 'true');
+
+                const prevText = document.createElement('span');
+                prevText.className = 'visually-hidden';
+                prevText.textContent = 'Previous';
+
+                prevButton.appendChild(prevIcon);
+                prevButton.appendChild(prevText);
+
+                const nextButton = document.createElement('button');
+                nextButton.className = 'carousel-control-next';
+                nextButton.type = 'button';
+                nextButton.setAttribute('data-bs-target', '#carousel-' + post.id);
+                nextButton.setAttribute('data-bs-slide', 'next');
+
+                const nextIcon = document.createElement('span');
+                nextIcon.className = 'carousel-control-next-icon';
+                nextIcon.setAttribute('aria-hidden', 'true');
+
+                const nextText = document.createElement('span');
+                nextText.className = 'visually-hidden';
+                nextText.textContent = 'Next';
+
+                nextButton.appendChild(nextIcon);
+                nextButton.appendChild(nextText);
+
+                carouselDiv.appendChild(prevButton);
+                carouselDiv.appendChild(nextButton);
+
+                // Добавляем индикаторы для карусели
+                const carouselIndicators = document.createElement('div');
+                carouselIndicators.className = 'carousel-indicators';
+
+                post.images.forEach((_, index) => {
+                    const indicatorButton = document.createElement('button');
+                    indicatorButton.type = 'button';
+                    indicatorButton.setAttribute('data-bs-target', '#carousel-' + post.id);
+                    indicatorButton.setAttribute('data-bs-slide-to', index);
+                    indicatorButton.className = index === 0 ? 'active' : '';
+                    indicatorButton.setAttribute('aria-current', 'true');
+                    indicatorButton.setAttribute('aria-label', `Slide ${index + 1}`);
+
+                    carouselIndicators.appendChild(indicatorButton);
+                });
+
+                carouselDiv.appendChild(carouselIndicators);
+            }
+        }
+
+        // Собираем и возвращаем полный пост
+        postElement.appendChild(userContainer);
+        postElement.appendChild(textDiv);
+        postElement.appendChild(imagesContainer);
+
+        return postElement;
+    }
+
+    $('#feed').on('scroll', function() {
+        if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
+            loadMorePosts();
+        }
+    });
+
+    // Загрузите первую страницу постов при инициализации
+    loadMorePosts();
+
     var selectedFiles = [];
 
     $('#post-images').on('change', function(event) {
@@ -177,52 +466,5 @@ $(document).ready(function() {
         });
     });
 
-    $('.posts .post').each(function() {
-        var $postContent = $(this).find('.post-content');
-        var $showMoreBtn = $(this).find('.show-more');
-
-        var threshold = 2; // Порог в пикселях
-
-        // Проверяем, превышает ли высота содержимого высоту контейнера более чем на пороговое значение
-        if ($postContent.prop('scrollHeight') - $postContent.innerHeight() > threshold) {
-            $showMoreBtn.show(); // Если текст превышает высоту, показываем кнопку "Показать еще"
-        } else {
-            $showMoreBtn.hide(); // Иначе скрываем кнопку
-        }
-
-        $showMoreBtn.click(function() {
-            $postContent.css('max-height', 'none'); // Убираем ограничение по высоте
-            $(this).hide(); // Скрываем кнопку
-        });
-    });
-
-    $('.carousel').carousel();
-
-    function deletePost(postId) {
-        var csrfToken = $("meta[name='_csrf']").attr("content");
-        var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-
-        $.ajax({
-            url: '/delete-post/' + postId, // Предполагается, что у вас есть такой маршрут на сервере
-            type: 'DELETE',
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader(csrfHeader, csrfToken);
-            },
-            success: function(result) {
-                // Удаление поста из DOM или показ сообщения об успехе
-                console.log('Пост успешно удален');
-                // Например, удалить элемент поста из DOM
-                $('div.post[data-post-id="' + postId + '"]').remove();
-            },
-            error: function(xhr, status, error) {
-                // Обработка ошибки
-                console.error('Ошибка удаления поста:', error);
-            }
-        });
-    }
-
-    $('.delete-post-btn').on('click', function() {
-        var postId = $(this).data('post-id');
-        deletePost(postId);
-    });
+    // $('.carousel').carousel();
 });
