@@ -121,11 +121,6 @@ public class MainPage {
         }
 
         Page<Map<String, Object>> posts = postService.findPaginatedPostsBySubscriptions(userId, page, size);
-        System.out.println("-=-=-=-=-=-=-\n");
-        System.out.println("-=-=-=-=-=-=-\n");
-        System.out.println("-=-=-=-=-=-=-\n");
-        System.out.println("-=-=-=-=-=-=-\n");
-        System.out.println(posts.getContent());
         return ResponseEntity.ok(posts);
     }
 

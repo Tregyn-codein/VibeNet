@@ -176,13 +176,11 @@ $(document).ready(function() {
                     $(followBtn).hover(
                         function() {
                             if (followBtn.className === "follow"){
-                                console.log(followBtn.className)
                                 followBtn.innerHTML = '<span class="material-icons">favorite</span>';
                             }
                         },
                         function() {
                             if (followBtn.className === "follow"){
-                                console.log("Вывел")
                                 followBtn.innerHTML = '<span class="material-icons">favorite_border</span>';
                             }
                         }
@@ -248,7 +246,6 @@ $(document).ready(function() {
                 // Например, отправка AJAX запроса на сервер для удаления поста
                 var csrfToken = $("meta[name='_csrf']").attr("content");
                 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-                console.log("Начинаю удаление")
 
                 $.ajax({
                     url: '/delete-post/' + post.id, // Предполагается, что у вас есть такой маршрут на сервере
@@ -624,7 +621,6 @@ $(document).ready(function() {
 
     function loadMoreComments(postId, container, showMoreBtn) {
         const offset = commentsOffset[postId];
-        console.log(commentsOffset[postId])
         // AJAX-запрос к серверу для получения дополнительных комментариев
         $.ajax({
             url: `/posts/${postId}/comments?offset=${offset}&limit=3`,
@@ -712,11 +708,9 @@ $(document).ready(function() {
 
     // Функция для загрузки и добавления постов в контейнер
     function loadSubscribePosts() {
-        console.log("Я ВАШОЛ В ПАДПИСКУ");
         if (isLoading) return;
         isLoading = true;
         $('#loading').show();
-        console.log("Я ПАДПИСКА");
         $.ajax({
             url: `/${userId}/subscriptions/posts?page=${currentSubscribePage}&size=${size}`,
             type: 'GET',
@@ -756,7 +750,6 @@ $(document).ready(function() {
         $(".post").remove()
         currentPage = 0;
         isLoading = false;
-        console.log('all ', currentPage);
         loadMorePosts();
     });
 
@@ -766,7 +759,6 @@ $(document).ready(function() {
         $(".post").remove()
         currentSubscribePage = 0;
         isLoading = false;
-        console.log('subscriptions ', currentSubscribePage);
         loadSubscribePosts();
     });
 
