@@ -32,6 +32,11 @@ public class PostService {
         return postRepository.findAll();
     }
 
+    public List<Post> findLatestPosts(int count) {
+        Pageable pageable = PageRequest.of(0, count, Sort.by("createdAt").descending());
+        return postRepository.findAll(pageable).getContent();
+    }
+
     public List<Post> findAllPostsByOrderByCreatedAtDesc() {
         return postRepository.findAllByOrderByCreatedAtDesc();
     }

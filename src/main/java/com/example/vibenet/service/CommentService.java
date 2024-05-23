@@ -3,6 +3,10 @@ package com.example.vibenet.service;
 import com.example.vibenet.entity.Comment;
 import com.example.vibenet.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +28,17 @@ public class CommentService {
 
     public Optional<Comment> findCommentById(Long id) {
         return commentRepository.findById(id);
+    }
+
+    public List<Comment> getCommentsByPostId(Long postId, int offset, int limit) {
+        int page = offset / limit; // Рассчитываем номер страницы
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("createdAt").ascending());
+        Page<Comment> commentsPage = commentRepository.findByPostId(postId, pageable);
+        return commentsPage.getContent();
+    }
+
+    public long countCommentsByPostId(Long postId) {
+        return commentRepository.countByPostId(postId);
     }
 
     public Comment saveComment(Comment comment) {

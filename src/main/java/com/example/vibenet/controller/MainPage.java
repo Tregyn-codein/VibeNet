@@ -65,26 +65,24 @@ public class MainPage {
 
     @GetMapping("/")
     public String mainpage(@AuthenticationPrincipal OAuth2User principal, Model model) {
-        int page = 0; // Начинаем с первой страницы
-        int size = 10; // Количество постов на странице
-
-//        Page<Post> postsPage = postService.findPaginatedPosts(page, size);
-
-        // Собираем ID постов для получения изображений
-//        List<Long> postIds = postsPage.getContent().stream().map(Post::getId).collect(Collectors.toList());
+//        int size = 2; // Количество постов на странице
+//
+//        List<Post> latestPosts = postService.findLatestPosts(size);
+//
+////         Собираем ID постов для получения изображений
+//        List<Long> postIds = latestPosts.stream().map(Post::getId).collect(Collectors.toList());
 //        Map<Long, List<String>> postImagesMap = imageService.getImagesByPostIds(postIds);
-
-//        model.addAttribute("posts", postsPage.getContent());
-//        model.addAttribute("postImagesMap", postImagesMap);
-//        model.addAttribute("currentPage", page);
-//        model.addAttribute("totalPages", postsPage.getTotalPages());
-
+//
 //        List<String> base64Images = new ArrayList<>();
-
-//        for (Post post : postsPage.getContent()) {
+//
+//        for (Post post : latestPosts) {
 //            String base64Image = convertBlobToBase64String(post.getAuthor().getProfilePicture());
 //            base64Images.add(base64Image);
 //        }
+//
+//        model.addAttribute("posts", latestPosts);
+//        model.addAttribute("postImagesMap", postImagesMap);
+//        model.addAttribute("base64Images", base64Images);
 
         // Получаем количество постов от автора
         long postsCountByAuthor = postService.countPostsByAuthor(currentUser(principal));
@@ -97,7 +95,6 @@ public class MainPage {
         model.addAttribute("postsCountByAuthor", postsCountByAuthor);
         model.addAttribute("totalPostsCount", totalPostsCount);
         model.addAttribute("todayPostsCount", todayPostsCount);
-//        model.addAttribute("base64Images", base64Images);
         model.addAttribute("user", currentUser(principal));
         model.addAttribute("username", currentUser(principal).getUsername());
         model.addAttribute("avatar", getProfilePictureAsBase64(currentUser(principal)));
@@ -160,7 +157,6 @@ public class MainPage {
         // Возвращаем ответ об успешном удалении
         return ResponseEntity.ok().body("Пост успешно удален");
     }
-
 }
 
 

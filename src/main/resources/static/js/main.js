@@ -1,4 +1,13 @@
 $(document).ready(function() {
+    var csrfToken = $('meta[name="_csrf"]').attr('content');
+    var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+    $.ajaxSetup({
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader(csrfHeader, csrfToken);
+        }
+    });
+
     function adjustFeedHeight() {
         var windowHeight = $(window).height();
         var feedHeight = windowHeight - 62 - 40;
@@ -102,6 +111,8 @@ $(document).ready(function() {
             }
         });
     }
+
+    let commentsOffset = {}; // Глобальный объект для отслеживания смещения комментариев для каждого поста
 
     function createPostElement(post) {
         // Создаем внешний контейнер для поста
@@ -341,7 +352,293 @@ $(document).ready(function() {
         postElement.appendChild(textDiv);
         postElement.appendChild(imagesContainer);
 
+        // Создаем контейнер для комментариев
+        const commentsContainer = document.createElement('div');
+        commentsContainer.className = 'comments-container border-top mt-2 pt-2';
+        const commentsH6 = document.createElement('h6');
+        commentsH6.textContent = 'Комментарии';
+        commentsContainer.appendChild(commentsH6);
+
+        // Создаем контейнер для ввода комментария
+        const writeCommentDiv = document.createElement('div');
+        writeCommentDiv.className = 'write-comment d-flex align-items-center my-2';
+
+        const commentInput = document.createElement('input');
+        commentInput.type = 'text';
+        commentInput.className = 'form-control comment-input';
+        commentInput.placeholder = 'Напишите комментарий...';
+
+        const sendCommentBtn = document.createElement('button');
+        sendCommentBtn.className = 'btn btn-primary send-comment-btn ms-2';
+        sendCommentBtn.innerHTML = '<span class="material-icons">\n' + 'send\n' + '</span>';
+        sendCommentBtn.style.display = 'none'; // Скрываем кнопку по умолчанию
+
+        writeCommentDiv.appendChild(commentInput);
+        writeCommentDiv.appendChild(sendCommentBtn);
+        commentsContainer.appendChild(writeCommentDiv);
+
+        // Создаем контейнер для списка комментариев
+        const commentsList = document.createElement('div');
+        commentsList.className = 'comments-list';
+        commentsContainer.appendChild(commentsList);
+
+        // Добавляем обработчик для отображения кнопки "Отправить" при вводе текста
+        commentInput.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                sendCommentBtn.style.display = 'inline-flex';
+            } else {
+                sendCommentBtn.style.display = 'none';
+            }
+        });
+
+        // Добавляем обработчик для отправки комментария
+        sendCommentBtn.addEventListener('click', function() {
+            const postId = post.id;
+            const commentText = commentInput.value.trim();
+            if (commentText !== '') {
+                // Отправка комментария на сервер
+                $.ajax({
+                    url: `/posts/${postId}/comments`,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ content: commentText }),
+                    success: function(newComment) {
+                        // Добавляем новый комментарий в контейнер
+                        const commentElement = document.createElement('div');
+                        commentElement.className = 'comment';
+
+                        const commentHeader = document.createElement('div');
+                        commentHeader.className = 'comment-header';
+
+                        // Создаем изображение профиля
+                        const authorPic = document.createElement('div');
+                        authorPic.className = 'comment-profile-pic';
+                        const authorPicImg = document.createElement('img');
+                        authorPicImg.className = 'comment-profile-pic-img';
+                        authorPicImg.src = newComment.author.profilePicture ? `data:image/png;base64,${newComment.author.profilePicture}` : 'images/profile_image.png';
+                        authorPicImg.alt = 'Profile Picture';
+                        authorPic.appendChild(authorPicImg);
+
+                        const commentInfo = document.createElement('div');
+                        commentInfo.className = 'comment-info d-flex flex-column';
+
+                        const authorUsername = document.createElement('span');
+                        authorUsername.className = 'comment-author-username h6 mb-0';
+                        authorUsername.textContent = newComment.author.username;
+
+                        const createdAtDiv = document.createElement('div');
+                        createdAtDiv.className = 'text-white-50';
+                        const timeElement = document.createElement('time');
+
+                        // Форматируем дату и время в соответствии с вашим форматом
+                        const createdAt = new Date(newComment.createdAt);
+                        const options = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
+                        // Убедитесь, что используете 'ru-RU' для русского формата даты
+                        const formattedDate = createdAt.toLocaleDateString('ru-RU', options);
+
+                        timeElement.textContent = `${formattedDate}`;
+                        createdAtDiv.appendChild(timeElement);
+
+                        commentInfo.appendChild(authorUsername);
+                        commentInfo.appendChild(createdAtDiv);
+                        commentHeader.appendChild(authorPic);
+                        commentHeader.appendChild(commentInfo);
+
+                        const contentElement = document.createElement('p');
+                        contentElement.className = 'comment-content';
+                        contentElement.textContent = newComment.content;
+
+                        commentElement.appendChild(commentHeader);
+                        commentElement.appendChild(contentElement);
+
+                        // commentsContainer.appendChild(commentElement);
+                        prependChild(commentsList, commentElement);
+
+                        // Очищаем поле ввода и скрываем кнопку "Отправить"
+                        commentInput.value = '';
+                        sendCommentBtn.style.display = 'none';
+                    },
+                    error: function(error) {
+                        console.error('Ошибка отправки комментария:', error);
+                    }
+                });
+            }
+        });
+
+        // Загружаем комментарии для поста
+        loadComments(post.id, commentsList, commentsH6);
+
+        postElement.appendChild(commentsContainer);
+
+
         return postElement;
+    }
+
+    function prependChild(parent, newChild) {
+        if (parent.firstChild) {
+            parent.insertBefore(newChild, parent.firstChild);
+        } else {
+            parent.appendChild(newChild);
+        }
+    }
+
+    function loadComments(postId, container, commentsHeader) {
+        commentsOffset[postId] = 0; // Инициализируем смещение для поста
+        // AJAX-запрос к серверу для получения комментариев
+        $.ajax({
+            url: `/posts/${postId}/comments?offset=0&limit=3`,
+            type: 'GET',
+            success: function(response) {
+                const comments = response.comments;
+                const totalComments = response.totalComments;
+
+                comments.slice(0, 3).forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment';
+
+                    const commentHeader = document.createElement('div');
+                    commentHeader.className = 'comment-header';
+
+                    // Создаем изображение профиля
+                    const authorPic = document.createElement('div');
+                    authorPic.className = 'comment-profile-pic';
+                    const authorPicImg = document.createElement('img');
+                    authorPicImg.className = 'comment-profile-pic-img';
+                    authorPicImg.src = comment.author.profilePicture ? `data:image/png;base64,${comment.author.profilePicture}` : 'images/profile_image.png';
+                    authorPicImg.alt = 'Profile Picture';
+                    authorPic.appendChild(authorPicImg);
+
+                    const commentInfo = document.createElement('div');
+                    commentInfo.className = 'comment-info d-flex flex-column';
+
+                    const authorUsername = document.createElement('span');
+                    authorUsername.className = 'comment-author-username h6 mb-0';
+                    authorUsername.textContent = comment.author.username;
+
+                    const createdAtDiv = document.createElement('div');
+                    createdAtDiv.className = 'text-white-50';
+                    const timeElement = document.createElement('time');
+
+                    // Форматируем дату и время в соответствии с вашим форматом
+                    const createdAt = new Date(comment.createdAt);
+                    const options = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
+                    // Убедитесь, что используете 'ru-RU' для русского формата даты
+                    const formattedDate = createdAt.toLocaleDateString('ru-RU', options);
+
+                    timeElement.textContent = `${formattedDate}`;
+                    createdAtDiv.appendChild(timeElement);
+
+                    commentInfo.appendChild(authorUsername);
+                    commentInfo.appendChild(createdAtDiv);
+                    commentHeader.appendChild(authorPic);
+                    commentHeader.appendChild(commentInfo);
+
+                    const contentElement = document.createElement('p');
+                    contentElement.className = 'comment-content';
+                    contentElement.textContent = comment.content;
+
+                    commentElement.appendChild(commentHeader);
+                    commentElement.appendChild(contentElement);
+                    container.appendChild(commentElement);
+                });
+
+                // Обновляем заголовок с общим количеством комментариев
+                commentsHeader.textContent = `Комментарии ${totalComments}`;
+
+
+                // Обновляем смещение после загрузки первых комментариев
+                commentsOffset[postId] += comments.length;
+
+                if (comments.length === 3) {
+                    const showMoreCommentsBtn = document.createElement('button');
+                    showMoreCommentsBtn.className = 'show-more-comments btn show-more';
+                    showMoreCommentsBtn.textContent = 'Показать больше';
+                    showMoreCommentsBtn.addEventListener('click', function() {
+                        loadMoreComments(postId, container, showMoreCommentsBtn);
+                    });
+                    container.appendChild(showMoreCommentsBtn);
+                }
+            },
+            error: function(error) {
+                console.error('Ошибка загрузки комментариев:', error);
+            }
+        });
+    }
+
+    function loadMoreComments(postId, container, showMoreBtn) {
+        const offset = commentsOffset[postId];
+        console.log(commentsOffset[postId])
+        // AJAX-запрос к серверу для получения дополнительных комментариев
+        $.ajax({
+            url: `/posts/${postId}/comments?offset=${offset}&limit=3`,
+            type: 'GET',
+            success: function(response) {
+                const moreComments = response.comments;
+                // Добавляем полученные комментарии в контейнер
+                moreComments.forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment';
+
+                    const commentHeader = document.createElement('div');
+                    commentHeader.className = 'comment-header';
+
+                    // Создаем изображение профиля
+                    const authorPic = document.createElement('div');
+                    authorPic.className = 'comment-profile-pic';
+                    const authorPicImg = document.createElement('img');
+                    authorPicImg.className = 'comment-profile-pic-img';
+                    authorPicImg.src = comment.author.profilePicture ? `data:image/png;base64,${comment.author.profilePicture}` : 'images/profile_image.png';
+                    authorPicImg.alt = 'Profile Picture';
+                    authorPic.appendChild(authorPicImg);
+
+                    const commentInfo = document.createElement('div');
+                    commentInfo.className = 'comment-info d-flex flex-column';
+
+                    const authorUsername = document.createElement('span');
+                    authorUsername.className = 'comment-author-username h6 mb-0';
+                    authorUsername.textContent = comment.author.username;
+
+                    const createdAtDiv = document.createElement('div');
+                    createdAtDiv.className = 'text-white-50';
+                    const timeElement = document.createElement('time');
+
+                    // Форматируем дату и время в соответствии с вашим форматом
+                    const createdAt = new Date(comment.createdAt);
+                    const options = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
+                    // Убедитесь, что используете 'ru-RU' для русского формата даты
+                    const formattedDate = createdAt.toLocaleDateString('ru-RU', options);
+
+                    timeElement.textContent = `${formattedDate}`;
+                    createdAtDiv.appendChild(timeElement);
+
+                    commentInfo.appendChild(authorUsername);
+                    commentInfo.appendChild(createdAtDiv);
+                    commentHeader.appendChild(authorPic);
+                    commentHeader.appendChild(commentInfo);
+
+                    const contentElement = document.createElement('p');
+                    contentElement.className = 'comment-content';
+                    contentElement.textContent = comment.content;
+
+                    commentElement.appendChild(commentHeader);
+                    commentElement.appendChild(contentElement);
+
+                    container.appendChild(commentElement);
+                });
+
+                commentsOffset[postId] += moreComments.length; // Обновляем смещение
+
+                if (moreComments.length < 3) {
+                    showMoreBtn.style.display = 'none'; // Скрываем кнопку, если больше нет комментариев
+                } else {
+                    // Перемещаем кнопку "Показать больше" вниз
+                    container.appendChild(showMoreBtn);
+                }
+            },
+            error: function(error) {
+                console.error('Ошибка загрузки дополнительных комментариев:', error);
+            }
+        });
     }
 
     $('#feed').on('scroll', function() {
@@ -465,6 +762,4 @@ $(document).ready(function() {
             }
         });
     });
-
-    // $('.carousel').carousel();
 });
