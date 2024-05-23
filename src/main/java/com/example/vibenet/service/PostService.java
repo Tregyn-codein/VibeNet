@@ -109,4 +109,26 @@ public class PostService {
             return postMap;
         });
     }
+
+    public Page<Map<String, Object>> findPaginatedPostsBySubscriptions(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postsPage = postRepository.findByAuthorFollowersId(userId, pageable);
+
+        return postsPage.map(post -> {
+            Map<String, Object> postMap = new HashMap<>();
+            postMap.put("id", post.getId());
+            postMap.put("content", post.getContent());
+            postMap.put("createdAt", post.getCreatedAt());
+            postMap.put("author", post.getAuthor());
+            postMap.put("onlyForFollowers", post.getOnlyForFollowers());
+            List<String> imagesBase64 = imageService.getImagesByPost(post).stream()
+                    .map(image -> Base64.getEncoder().encodeToString(image.getImage()))
+                    .collect(Collectors.toList());
+            postMap.put("images", imagesBase64);
+
+            return postMap;
+        });
+    }
+
+
 }

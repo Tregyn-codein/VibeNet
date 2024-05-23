@@ -14,12 +14,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/user")
     public OAuth2User user(@AuthenticationPrincipal OAuth2User principal) {
@@ -75,5 +77,33 @@ public class UserController {
                 .body(pictureData);
     }
 
-    // Дополнительные методы для обновления и других операций
+    @PostMapping("/{followerId}/follow/{followedId}")
+    public ResponseEntity<User> followUser(@PathVariable Long followerId, @PathVariable Long followedId) {
+        User updatedUser = userService.followUser(followerId, followedId);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @PostMapping("/{followerId}/unfollow/{followedId}")
+    public ResponseEntity<User> unfollowUser(@PathVariable Long followerId, @PathVariable Long followedId) {
+        User updatedUser = userService.unfollowUser(followerId, followedId);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @GetMapping("/{followerId}/isFollowing/{followedId}")
+    public ResponseEntity<Boolean> isFollowing(@PathVariable Long followerId, @PathVariable Long followedId) {
+        boolean isFollowing = userService.isFollowing(followerId, followedId);
+        return ResponseEntity.ok(isFollowing);
+    }
+
+    @GetMapping("/{userId}/followers")
+    public ResponseEntity<Set<User>> getFollowers(@PathVariable Long userId) {
+        Set<User> followers = userService.getFollowers(userId);
+        return ResponseEntity.ok(followers);
+    }
+
+    @GetMapping("/{userId}/following")
+    public ResponseEntity<Set<User>> getFollowing(@PathVariable Long userId) {
+        Set<User> following = userService.getFollowing(userId);
+        return ResponseEntity.ok(following);
+    }
 }

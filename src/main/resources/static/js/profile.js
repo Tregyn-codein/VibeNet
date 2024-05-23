@@ -1,7 +1,14 @@
 $(document).ready(function() {
-    // Открытие модального окна
-    var csrfToken = $("meta[name='_csrf']").attr("content");
-    var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+    // Получение CSRF-токена из мета-тегов
+    const csrfToken = $('meta[name="_csrf"]').attr('content');
+    const csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+
+    // Установка CSRF-токена в заголовки всех AJAX-запросов
+    $.ajaxSetup({
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader(csrfHeader, csrfToken);
+        }
+    });
 
     // Закрытие модального окна при клике вне его
 
@@ -134,4 +141,107 @@ $(document).ready(function() {
             });
         }
     });
+
+
+
+    const userId = $('meta[name="currentUserId"]').attr('content');
+
+    // // Инициализация модальных окон без затемнения фона
+    // $('#followingModal').modal({ backdrop: false });
+    // $('#followersModal').modal({ backdrop: false });
+
+    // Загрузка количества подписок и подписчиков
+    loadCounts(userId);
+
+    // Обработчик для кнопки "Подписки"
+    $('#followingBtn').on('click', function() {
+        loadFollowing(userId);
+    });
+
+    // Обработчик для кнопки "Подписчики"
+    $('#followersBtn').on('click', function() {
+        loadFollowers(userId);
+    });
+
+    // Загрузка количества подписок и подписчиков
+    function loadCounts(userId) {
+        $.get(`/users/${userId}/following`, function(following) {
+            $('#followingBtn').text(`Подписки (${following.length})`);
+        });
+
+        $.get(`/users/${userId}/followers`, function(followers) {
+            $('#followersBtn').text(`Подписчики (${followers.length})`);
+        });
+    }
+
+    // Загрузка списка подписок
+    function loadFollowing(userId) {
+        $.get(`/users/${userId}/following`, function(following) {
+            const followingList = $('#followingList');
+            followingList.empty();
+            following.forEach(user => {
+                const listItem = $('<li class="list-group-item d-flex justify-content-between align-items-center"></li>');
+                const userInfo = document.createElement('div');
+                userInfo.className = 'user d-flex justify-content-start align-items-center gap-3';
+                const profilePicDiv = document.createElement('div');
+                profilePicDiv.className = 'profile-pic';
+                const profilePicImg = document.createElement('img');
+                profilePicImg.className = 'profile-pic-img';
+                profilePicImg.src = user.profilePicture ? `data:image/png;base64,${user.profilePicture}` : 'images/profile_image.png';
+                profilePicImg.alt = 'Profile Picture';
+                profilePicDiv.appendChild(profilePicImg);
+
+                const username = document.createElement('span');
+                username.className = 'username';
+                username.textContent = user.username;
+                userInfo.appendChild(profilePicDiv);
+                userInfo.appendChild(username);
+
+                const unfollowBtn = $('<button class="btn btn-danger btn-sm">Отписаться</button>');
+                unfollowBtn.on('click', function() {
+                    unfollowUser(userId, user.id, listItem);
+                });
+                listItem.append(userInfo);
+                listItem.append(unfollowBtn);
+                followingList.append(listItem);
+            });
+        });
+    }
+
+    // Загрузка списка подписчиков
+    function loadFollowers(userId) {
+        $.get(`/users/${userId}/followers`, function(followers) {
+            const followersList = $('#followersList');
+            followersList.empty();
+            followers.forEach(user => {
+                const listItem = $('<li class="list-group-item d-flex justify-content-between align-items-center"></li>');
+                const userInfo = document.createElement('div');
+                userInfo.className = 'user d-flex justify-content-start align-items-center gap-3';
+                const profilePicDiv = document.createElement('div');
+                profilePicDiv.className = 'profile-pic';
+                const profilePicImg = document.createElement('img');
+                profilePicImg.className = 'profile-pic-img';
+                profilePicImg.src = user.profilePicture ? `data:image/png;base64,${user.profilePicture}` : 'images/profile_image.png';
+                profilePicImg.alt = 'Profile Picture';
+                profilePicDiv.appendChild(profilePicImg);
+
+                const username = document.createElement('span');
+                username.className = 'username';
+                username.textContent = user.username;
+                userInfo.appendChild(profilePicDiv);
+                userInfo.appendChild(username);
+
+                listItem.append(userInfo);
+                followersList.append(listItem);
+            });
+        });
+    }
+
+    // Отписка от пользователя
+    function unfollowUser(followerId, followedId, listItem) {
+        $.post(`/users/${followerId}/unfollow/${followedId}`, function() {
+            listItem.remove();
+            loadCounts(followerId); // Обновляем количество подписок и подписчиков
+        });
+    }
 });

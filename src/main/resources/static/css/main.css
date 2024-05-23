@@ -227,6 +227,19 @@
     font-size: 14px;
 }
 
+.feed .post .post-info .name-and-follow .follow{
+    border: none;
+    background: none;
+    color: #d15656;
+}
+
+.feed .post .post-info .name-and-follow .followed{
+    border: none;
+    background: none;
+    color: #818181;
+    cursor: pointer;
+}
+
 .feed .post .post-content {
     display: block;
     line-height: 1.2em;
@@ -286,7 +299,7 @@
 }
 
 .post .comments-container .comment-input{
-    background: rgba(156, 164, 255, 0.51);
+    background: rgba(103, 111, 216, 0.51);
     border: none;
     color: #ffffff;
     resize: none;

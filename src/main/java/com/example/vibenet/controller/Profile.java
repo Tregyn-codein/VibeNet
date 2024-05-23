@@ -50,9 +50,8 @@ public class Profile {
 
     @GetMapping("/profile")
     public String profile(@AuthenticationPrincipal OAuth2User principal, Model model) {
-        // Можно добавить атрибуты модели, которые будут использоваться в шаблоне
         model.addAttribute("username", currentUser(principal).getUsername());
-//        model.addAttribute("avatar", getProfilePicture(currentUser(principal)));
+        model.addAttribute("user", currentUser(principal));
         model.addAttribute("avatar", getProfilePictureAsBase64(currentUser(principal)));
         return "profile"; // Возвращает имя шаблона без расширения .html
     }

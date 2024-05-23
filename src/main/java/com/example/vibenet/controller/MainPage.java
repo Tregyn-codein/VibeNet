@@ -109,6 +109,26 @@ public class MainPage {
         return ResponseEntity.ok(postsWithImages);
     }
 
+    @GetMapping("/{userId}/subscriptions/posts")
+    public ResponseEntity<Page<Map<String, Object>>> loadPostsBySubscriptions(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal OAuth2User principal) {
+        // Проверка, что текущий пользователь запрашивает свои собственные подписки
+        if (!currentUser(principal).getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Page<Map<String, Object>> posts = postService.findPaginatedPostsBySubscriptions(userId, page, size);
+        System.out.println("-=-=-=-=-=-=-\n");
+        System.out.println("-=-=-=-=-=-=-\n");
+        System.out.println("-=-=-=-=-=-=-\n");
+        System.out.println("-=-=-=-=-=-=-\n");
+        System.out.println(posts.getContent());
+        return ResponseEntity.ok(posts);
+    }
+
     @PostMapping("/create-post")
     public ResponseEntity<?> createPost(@RequestParam("content") String content,
                                         @RequestParam("onlyForFollowers") Boolean onlyForFollowers,

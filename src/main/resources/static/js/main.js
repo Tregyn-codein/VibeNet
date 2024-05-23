@@ -2,6 +2,8 @@ $(document).ready(function() {
     var csrfToken = $('meta[name="_csrf"]').attr('content');
     var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
 
+    const userId = $('meta[name="currentUserId"]').attr('content');
+
     $.ajaxSetup({
         beforeSend: function(xhr) {
             xhr.setRequestHeader(csrfHeader, csrfToken);
@@ -19,6 +21,16 @@ $(document).ready(function() {
 
     // Вызовите функцию при изменении размера окна браузера
     $(window).resize(adjustFeedHeight);
+
+    // Функция для подписки на пользователя
+    function followUser(followerId, followedId, followBtn) {
+        $.post(`/users/${followerId}/follow/${followedId}`, function() {
+            followBtn.innerHTML = '<span class="material-icons">favorite</span>';
+            followBtn.className = 'followed';
+            followBtn.setAttribute("title", 'Вы подписаны')
+            followBtn.disabled = true;
+        });
+    }
 
     var $createPostBtn = $('#row2');
     var $textarea = $('#create-post');
@@ -136,9 +148,54 @@ $(document).ready(function() {
         // Создаем информацию о посте (автор, дата)
         const postInfoDiv = document.createElement('div');
         postInfoDiv.className = 'post-info d-flex flex-column';
+        const nameAndFollow = document.createElement('div');
+        nameAndFollow.className = 'name-and-follow d-flex';
         const authorNameSpan = document.createElement('span');
         authorNameSpan.className = 'h4 mb-0';
         authorNameSpan.textContent = post.author.username; // Имя автора
+        nameAndFollow.appendChild(authorNameSpan);
+
+        // Если это пост текущего пользователя, ничего не отображаем
+        if (post.author.id !== parseInt(userId)) {
+            // Проверка подписки
+            $.get(`/users/${userId}/isFollowing/${post.author.id}`, function(isFollowing) {
+                if (isFollowing) {
+                    const subscribedSpan = document.createElement('span');
+                    subscribedSpan.className = 'material-icons followed';
+                    subscribedSpan.textContent = 'favorite';
+                    subscribedSpan.setAttribute("title", 'Вы подписаны')
+                    nameAndFollow.appendChild(subscribedSpan);
+                } else {
+                    const followBtn = document.createElement('button');
+                    followBtn.className = 'follow';
+                    followBtn.innerHTML = '<span class="material-icons">favorite_border</span>';
+                    followBtn.setAttribute("title", 'Подписаться');
+                    if (followBtn.className === "follow"){
+
+                    }
+                    $(followBtn).hover(
+                        function() {
+                            if (followBtn.className === "follow"){
+                                console.log(followBtn.className)
+                                followBtn.innerHTML = '<span class="material-icons">favorite</span>';
+                            }
+                        },
+                        function() {
+                            if (followBtn.className === "follow"){
+                                console.log("Вывел")
+                                followBtn.innerHTML = '<span class="material-icons">favorite_border</span>';
+                            }
+                        }
+                    );
+
+                    followBtn.addEventListener('click', function() {
+                        followUser(userId, post.author.id, followBtn);
+                    });
+                    nameAndFollow.appendChild(followBtn);
+                }
+            });
+        }
+
         const dateDiv = document.createElement('div');
         dateDiv.className = 'text-white-50';
         const timeElement = document.createElement('time');
@@ -158,7 +215,7 @@ $(document).ready(function() {
             followersSpan.textContent = 'Для подписчиков';
             dateDiv.appendChild(followersSpan);
         }
-        postInfoDiv.appendChild(authorNameSpan);
+        postInfoDiv.appendChild(nameAndFollow);
         postInfoDiv.appendChild(dateDiv);
 
         // Собираем контейнер пользователя
@@ -643,9 +700,81 @@ $(document).ready(function() {
 
     $('#feed').on('scroll', function() {
         if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
-            loadMorePosts();
+            if (currentFeed === 'all'){
+                loadMorePosts();
+            } else {
+                loadSubscribePosts()
+            }
         }
     });
+
+    let currentSubscribePage = 0;
+
+    // Функция для загрузки и добавления постов в контейнер
+    function loadSubscribePosts() {
+        console.log("Я ВАШОЛ В ПАДПИСКУ");
+        if (isLoading) return;
+        isLoading = true;
+        $('#loading').show();
+        console.log("Я ПАДПИСКА");
+        $.ajax({
+            url: `/${userId}/subscriptions/posts?page=${currentSubscribePage}&size=${size}`,
+            type: 'GET',
+            success: function(postsPage) {
+                if (postsPage.content.length === 0) {
+                    $('#loading').hide();
+                    return;
+                }
+                postsPage.content.forEach(post => {
+                    const postElement = createPostElement(post);
+                    $('#feed').append(postElement);
+                    // Инициализируем карусель Bootstrap для каждого добавленного элемента поста
+                    if (post.images && post.images.length > 0) {
+                        var carouselElement = document.querySelector('#carousel-' + post.id);
+                        var carousel = new bootstrap.Carousel(carouselElement);
+                    }
+                });
+                currentSubscribePage++;
+                isLoading = false;
+                $('#loading').hide();
+            },
+            error: function(error) {
+                console.error('Error loading more posts:', error);
+                isLoading = false;
+                $('#loading').hide();
+            }
+        });
+    }
+
+    // Инициализация состояния
+    let currentFeed = 'all'; // 'all' или 'subscriptions'
+
+    // Обработчики для кнопок
+    $('#allPostsBtn').on('click', function() {
+        currentFeed = 'all';
+        updateFeedType();
+        $(".post").remove()
+        currentPage = 0;
+        isLoading = false;
+        console.log('all ', currentPage);
+        loadMorePosts();
+    });
+
+    $('#subscriptionsBtn').on('click', function() {
+        currentFeed = 'subscriptions';
+        updateFeedType();
+        $(".post").remove()
+        currentSubscribePage = 0;
+        isLoading = false;
+        console.log('subscriptions ', currentSubscribePage);
+        loadSubscribePosts();
+    });
+
+    // Функция для обновления стиля выбранной кнопки
+    function updateFeedType() {
+        $('#allPostsBtn').toggleClass('selected', currentFeed === 'all', );
+        $('#subscriptionsBtn').toggleClass('selected', currentFeed === 'subscriptions');
+    }
 
     // Загрузите первую страницу постов при инициализации
     loadMorePosts();

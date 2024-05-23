@@ -1,12 +1,14 @@
 package com.example.vibenet.service;
 
 import com.example.vibenet.entity.User;
+import com.example.vibenet.exception.ResourceNotFoundException;
 import com.example.vibenet.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -49,18 +51,45 @@ public class UserService {
                 });
     }
 
-    public void followUser(Long currentUserId, Long userIdToFollow) {
-        User currentUser = userRepository.findById(currentUserId).orElseThrow(/* ... */);
-        User userToFollow = userRepository.findById(userIdToFollow).orElseThrow(/* ... */);
-        currentUser.getFollowing().add(userToFollow);
-        userRepository.save(currentUser);
+    public User followUser(Long followerId, Long followedId) {
+        User follower = userRepository.findById(followerId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + followerId));
+        User followed = userRepository.findById(followedId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + followedId));
+
+        follower.getFollowing().add(followed);
+        return userRepository.save(follower);
     }
 
-    public void unfollowUser(Long currentUserId, Long userIdToUnfollow) {
-        User currentUser = userRepository.findById(currentUserId).orElseThrow(/* ... */);
-        User userToUnfollow = userRepository.findById(userIdToUnfollow).orElseThrow(/* ... */);
-        currentUser.getFollowing().remove(userToUnfollow);
-        userRepository.save(currentUser);
+    public User unfollowUser(Long followerId, Long followedId) {
+        User follower = userRepository.findById(followerId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + followerId));
+        User followed = userRepository.findById(followedId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + followedId));
+
+        follower.getFollowing().remove(followed);
+        return userRepository.save(follower);
+    }
+
+    public boolean isFollowing(Long followerId, Long followedId) {
+        User follower = userRepository.findById(followerId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + followerId));
+        User followed = userRepository.findById(followedId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + followedId));
+
+        return follower.getFollowing().contains(followed);
+    }
+
+    public Set<User> getFollowers(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
+        return user.getFollowers();
+    }
+
+    public Set<User> getFollowing(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
+        return user.getFollowing();
     }
 
     public void saveProfilePicture(Long userId, byte[] pictureData) {

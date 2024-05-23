@@ -187,47 +187,6 @@
     background-color: #eee;
 }
 
-/* Список c превью */
-/*.wall .myModal .modal-content #uploadForm .input-file-list {*/
-/*    padding: 10px 0;*/
-/*    margin-bottom: 0;*/
-/*}*/
-/*.wall .myModal .modal-content #uploadForm .input-file-list-item {*/
-/*    display: inline-block;*/
-/*    margin: 0 15px 15px;*/
-/*    width: 150px;*/
-/*    vertical-align: top;*/
-/*    position: relative;*/
-/*}*/
-/*.wall .myModal .modal-content #uploadForm .input-file-list-item img {*/
-/*    width: 150px;*/
-/*    margin-bottom: 5px;*/
-/*}*/
-/*.wall .myModal .modal-content #uploadForm .input-file-list-name {*/
-/*    text-align: center;*/
-/*    display: block;*/
-/*    font-size: 12px;*/
-/*    text-overflow: ellipsis;*/
-/*    overflow: hidden;*/
-/*    margin-bottom: 0;*/
-/*}*/
-/*.wall .myModal .modal-content #uploadForm .input-file-list-remove {*/
-/*    color: #fff;*/
-/*    text-decoration: none;*/
-/*    display: inline-block;*/
-/*    position: absolute;*/
-/*    padding: 0;*/
-/*    margin: 0;*/
-/*    top: 5px;*/
-/*    right: 5px;*/
-/*    background: #ff0202;*/
-/*    width: 16px;*/
-/*    height: 16px;*/
-/*    text-align: center;*/
-/*    line-height: 16px;*/
-/*    border-radius: 50%;*/
-/*}*/
-
 .wall .myModal .modal-content #uploadForm button{
     padding: 4px 2px;
     color: #ffffff;
@@ -306,4 +265,38 @@
     background-color: #4fa57e;
     color: #ddd;
     cursor: pointer;
+}
+
+#followButtons .modal-content{
+    background: rgba(68, 68, 90, 0.96);
+}
+
+#followButtons .modal-content li{
+    border: none;
+    color: #ffffff;
+    background: rgba(68, 68, 90, 0);
+}
+
+#followButtons .modal-content li button{
+    justify-self: end;
+}
+
+#followButtons .modal-content ul .profile-pic {
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    object-fit: cover;
+    overflow: hidden;
+    box-shadow: -1px 4px 10px 4px rgba(34, 60, 80, 0.22);
+}
+
+#followButtons .modal-content ul .profile-pic img{
+    display: block;
+    width: 100%;
+}
+
+.modal-backdrop {
+    display: none !important;
 }
