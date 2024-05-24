@@ -1,6 +1,8 @@
 package com.example.vibenet.service;
 
 import com.example.vibenet.entity.Comment;
+import com.example.vibenet.entity.Image;
+import com.example.vibenet.entity.Post;
 import com.example.vibenet.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -48,6 +50,16 @@ public class CommentService {
     public void deleteComment(Long id) {
         commentRepository.deleteById(id);
     }
+
+    public List<Comment> getCommentsByPost(Post post) {
+        return commentRepository.findByPost(post);
+    }
+
+    public void deleteCommentsByPost(Post post) {
+        List<Comment> comments = getCommentsByPost(post);
+        commentRepository.deleteAll(comments);
+    }
+
 
     // Дополнительные методы, связанные с бизнес-логикой комментариев
 }

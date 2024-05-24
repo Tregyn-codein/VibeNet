@@ -21,11 +21,13 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final ImageService imageService;
+    private final CommentService commentService;
 
     @Autowired
-    public PostService(PostRepository postRepository, ImageService imageService) {
+    public PostService(PostRepository postRepository, ImageService imageService, CommentService commentService) {
         this.postRepository = postRepository;
         this.imageService = imageService;
+        this.commentService = commentService;
     }
 
     public List<Post> findAllPosts() {
@@ -52,6 +54,7 @@ public class PostService {
     public void deletePost(Long id) {
         Post post = postRepository.findById(id).get();
         imageService.deleteImagesByPost(post);
+        commentService.deleteCommentsByPost(post);
         postRepository.deleteById(id);
     }
 

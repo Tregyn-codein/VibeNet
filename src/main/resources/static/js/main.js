@@ -124,7 +124,6 @@ $(document).ready(function() {
                     results.forEach(post => {
                         if (post) {
                             const postElement = createPostElement(post);
-                            console.log(post.id);
                             $('#feed').append(postElement);
                             // Инициализируем карусель Bootstrap для каждого добавленного элемента поста
                             if (post.images && post.images.length > 0) {
@@ -275,7 +274,7 @@ $(document).ready(function() {
                 var csrfHeader = $("meta[name='_csrf_header']").attr("content");
 
                 $.ajax({
-                    url: '/delete-post/' + post.id, // Предполагается, что у вас есть такой маршрут на сервере
+                    url: `/delete-post/${post.id}`,
                     type: 'DELETE',
                     beforeSend: function(xhr) {
                         xhr.setRequestHeader(csrfHeader, csrfToken);
