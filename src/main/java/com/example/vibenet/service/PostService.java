@@ -130,5 +130,27 @@ public class PostService {
         });
     }
 
+    public Page<Map<String, Object>> searchPosts(String query, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postsPage = postRepository.findByContentContainingIgnoreCaseOrAuthorUsernameContainingIgnoreCase(query, query, pageable);
 
+        return postsPage.map(post -> {
+            Map<String, Object> postMap = new HashMap<>();
+            postMap.put("id", post.getId());
+            postMap.put("content", post.getContent());
+            postMap.put("createdAt", post.getCreatedAt());
+            postMap.put("author", post.getAuthor());
+            postMap.put("onlyForFollowers", post.getOnlyForFollowers());
+            List<String> imagesBase64 = imageService.getImagesByPost(post).stream()
+                    .map(image -> Base64.getEncoder().encodeToString(image.getImage()))
+                    .collect(Collectors.toList());
+            postMap.put("images", imagesBase64);
+
+            return postMap;
+        });
+    }
+
+    public long countSearchPosts(String query) {
+        return postRepository.countByContentContainingIgnoreCaseOrAuthorUsernameContainingIgnoreCase(query, query);
+    }
 }

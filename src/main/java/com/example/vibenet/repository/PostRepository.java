@@ -24,4 +24,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT COUNT(p) FROM Post p WHERE p.createdAt >= :startOfDay AND p.createdAt < :endOfDay")
     long countPostsFromToday(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
     Page<Post> findByAuthorFollowersId(Long userId, Pageable pageable);
+    Page<Post> findByContentContainingIgnoreCaseOrAuthorUsernameContainingIgnoreCase(String content, String authorUsername, Pageable pageable);
+    long countByContentContainingIgnoreCaseOrAuthorUsernameContainingIgnoreCase(String content, String authorUsername);
 }

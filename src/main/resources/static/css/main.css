@@ -50,6 +50,14 @@
     height: auto;
 }
 
+.info .feed-type button {
+    color: #5ab2ff;
+}
+
+.info .feed-type button:hover {
+    color: #76bbff;
+}
+
 .info .stats{
     border-color: rgba(255, 255, 255, 0.14) !important;
 }
@@ -299,7 +307,7 @@
 }
 
 .post .comments-container .comment-input{
-    background: rgba(103, 111, 216, 0.51);
+    background: rgba(100, 101, 115, 0.51);
     border: none;
     color: #ffffff;
     resize: none;

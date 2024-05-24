@@ -32,71 +32,22 @@ $(document).ready(function() {
         });
     }
 
-    var $createPostBtn = $('#row2');
-    var $textarea = $('#create-post');
-
-    $textarea.on('input', function() {
-        $(this).css('height', 'auto').css('height', this.scrollHeight + 'px');
-    });
-
-    // Сначала скрываем кнопку
-    $createPostBtn.hide();
-
-    function isTextareaNotEmpty() {
-        return $textarea.val().trim().length > 0;
-    }
-
-    // Функция для проверки содержимого textarea и показа/скрытия кнопки
-    function toggleButton() {
-        if ($textarea.val().trim().length > 0) {
-            $('#row').addClass('mb-3');
-            $createPostBtn.show();
-        } else {
-            $('#row').removeClass('mb-3');
-            $createPostBtn.hide();
-        }
-    }
-
-    // Проверяем содержимое textarea при его изменении
-    $textarea.on('input', toggleButton);
-
-    // Проверяем содержимое textarea при загрузке страницы
-    // на случай, если браузер сохраняет предыдущий ввод
-    toggleButton();
-
-    $(window).on('beforeunload', function() {
-        if (isTextareaNotEmpty()) {
-            return 'На странице есть несохраненные изменения. Вы уверены, что хотите уйти?';
-        }
-    });
-
-    function trimEmptyLines(text) {
-        // Разбиваем текст на массив строк
-        let lines = text.split('\n');
-        // Удаляем пустые строки в начале
-        while (lines.length > 0 && lines[0].trim() === '') {
-            lines.shift();
-        }
-        // Удаляем пустые строки в конце
-        while (lines.length > 0 && lines[lines.length - 1].trim() === '') {
-            lines.pop();
-        }
-        // Объединяем массив обратно в строку
-        return lines.join('\n');
-    }
-
     let currentPage = 0;
     const size = 10; // Количество постов на одной странице
     let isLoading = false;
+    const query = $('#searchQuery').val();
 
-    // Функция для загрузки и добавления постов в контейнер
-    function loadMorePosts() {
+
+
+    // Функция для поиска постов и их постепенной загрузки
+    function searchPosts(query) {
         if (isLoading) return;
         isLoading = true;
         $('#loading').show();
 
+
         $.ajax({
-            url: `/loadMorePosts?page=${currentPage}&size=${size}`,
+            url: `/posts/search/results?query=${query}&page=${currentPage}&size=${size}`,
             type: 'GET',
             success: function(postsPage) {
                 if (postsPage.content.length === 0) {
@@ -723,191 +674,11 @@ $(document).ready(function() {
 
     $('#feed').on('scroll', function() {
         if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight) {
-            if (currentFeed === 'all'){
-                loadMorePosts();
-            } else {
-                loadSubscribePosts()
-            }
+            searchPosts(query);
         }
     });
 
-    let currentSubscribePage = 0;
+    // Загрузка постов при загрузке страницы
+    searchPosts(query);
 
-    // Функция для загрузки и добавления постов в контейнер
-    function loadSubscribePosts() {
-        if (isLoading) return;
-        isLoading = true;
-        $('#loading').show();
-        $.ajax({
-            url: `/${userId}/subscriptions/posts?page=${currentSubscribePage}&size=${size}`,
-            type: 'GET',
-            success: function(postsPage) {
-                if (postsPage.content.length === 0) {
-                    $('#loading').hide();
-                    return;
-                }
-                postsPage.content.forEach(post => {
-                    const postElement = createPostElement(post);
-                    $('#feed').append(postElement);
-                    // Инициализируем карусель Bootstrap для каждого добавленного элемента поста
-                    if (post.images && post.images.length > 0) {
-                        var carouselElement = document.querySelector('#carousel-' + post.id);
-                        var carousel = new bootstrap.Carousel(carouselElement);
-                    }
-                });
-                currentSubscribePage++;
-                isLoading = false;
-                $('#loading').hide();
-            },
-            error: function(error) {
-                console.error('Error loading more posts:', error);
-                isLoading = false;
-                $('#loading').hide();
-            }
-        });
-    }
-
-    // Инициализация состояния
-    let currentFeed = 'all'; // 'all' или 'subscriptions'
-
-    // Обработчики для кнопок
-    $('#allPostsBtn').on('click', function() {
-        currentFeed = 'all';
-        updateFeedType();
-        $(".post").remove()
-        currentPage = 0;
-        isLoading = false;
-        loadMorePosts();
-    });
-
-    $('#subscriptionsBtn').on('click', function() {
-        currentFeed = 'subscriptions';
-        updateFeedType();
-        $(".post").remove()
-        currentSubscribePage = 0;
-        isLoading = false;
-        loadSubscribePosts();
-    });
-
-    // Функция для обновления стиля выбранной кнопки
-    function updateFeedType() {
-        $('#allPostsBtn').toggleClass('selected', currentFeed === 'all', );
-        $('#subscriptionsBtn').toggleClass('selected', currentFeed === 'subscriptions');
-    }
-
-    // Загрузите первую страницу постов при инициализации
-    loadMorePosts();
-
-    var selectedFiles = [];
-
-    $('#post-images').on('change', function(event) {
-        // Очищаем предыдущие превью
-        $('#image-preview-container').empty();
-
-        // Добавляем новые файлы в массив selectedFiles
-        selectedFiles = Array.from(event.target.files);
-
-        // Отображаем превью
-        selectedFiles.forEach(function(file, index) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var $slot = $('<div>').addClass('preview-image-slot')
-                var $img = $('<img>').attr('src', e.target.result).addClass('preview-image');
-                var $removeButton = $('<button>').addClass('remove-image-button').addClass('btn').addClass('btn-danger').html("<span class='material-icons'>delete</span>");
-                $removeButton.on('click', function() {
-                    // Удаляем изображение из массива
-                    selectedFiles.splice(index, 1);
-                    // Обновляем превью и input
-                    updatePreviewAndInput();
-                });
-                $('#image-preview-container').append($slot);
-                $slot.append($img).append($removeButton);
-            };
-            reader.readAsDataURL(file);
-        });
-    });
-
-    function updatePreviewAndInput() {
-        // Очищаем контейнер превью
-        $('#image-preview-container').empty();
-
-        // Создаем новый input для файлов
-        var $newInput = $('<input>').attr({
-            type: 'file',
-            name: 'images',
-            id: 'post-images',
-            multiple: '',
-            accept: 'image/*'
-        });
-
-        // Заменяем старый input новым
-        $('#post-images').replaceWith($newInput);
-
-        // Переинициализируем обработчик события change для нового input
-        $newInput.on('change', function(event) {
-            selectedFiles = Array.from(event.target.files);
-            updatePreviewAndInput();
-        });
-
-        // Если есть выбранные файлы, создаем DataTransfer объект и добавляем файлы
-        if (selectedFiles.length > 0) {
-            var dataTransfer = new DataTransfer();
-            selectedFiles.forEach(function(file) {
-                dataTransfer.items.add(file);
-            });
-            $newInput[0].files = dataTransfer.files;
-        }
-
-        // Отображаем превью для обновленного списка файлов
-        selectedFiles.forEach(function(file, index) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var $slot = $('<div>').addClass('preview-image-slot')
-                var $img = $('<img>').attr('src', e.target.result).addClass('preview-image');
-                var $removeButton = $('<button>').text('Удалить').addClass('remove-image-button').addClass('btn').addClass('btn-danger').html("<span class='material-icons'>delete</span>");
-                $removeButton.on('click', function() {
-                    selectedFiles.splice(index, 1);
-                    updatePreviewAndInput();
-                });
-                $('#image-preview-container').append($slot);
-                $slot.append($img).append($removeButton);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    $('.create-post').submit(function(event) {
-        event.preventDefault(); // Предотвращаем стандартную отправку формы
-
-        var formData = new FormData(this);
-        formData.append('content', trimEmptyLines($('#create-post').val()));
-        formData.append('onlyForFollowers', $('#visionSelect').val() === '2');
-
-        var csrfToken = $("meta[name='_csrf']").attr("content");
-        var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-
-        $.ajax({
-            type: 'POST',
-            url: '/create-post',
-            data: formData,
-            processData: false,
-            contentType: false,
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader(csrfHeader, csrfToken);
-            },
-            success: function(response) {
-                // Обработка успешного ответа
-                // Например, очистите форму и обновите список постов
-                $('#create-post').val('');
-                $('#image-preview-container').empty();
-                // Добавьте код для добавления нового поста в DOM
-                location.reload();
-            },
-            error: function(xhr, status, error) {
-                // Обработка ошибок при отправке формы
-                alert('Ошибка при отправке формы')
-                console.error('Ошибка при отправке формы: ', error);
-            }
-        });
-    });
 });

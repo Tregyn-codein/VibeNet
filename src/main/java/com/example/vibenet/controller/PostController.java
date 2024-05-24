@@ -16,13 +16,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
-@RestController
+@Controller
 @RequestMapping("/posts")
 public class PostController {
 
@@ -72,5 +74,36 @@ public class PostController {
 
         Comment savedComment = commentService.saveComment(comment);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
+    }
+
+    public String getProfilePictureAsBase64(User user) {
+        if (user.getProfilePicture() != null) {
+            byte[] pictureData = user.getProfilePicture();
+            return Base64.getEncoder().encodeToString(pictureData);
+        }
+        return null; // Или возвращайте данные изображения по умолчанию
+    }
+
+    @GetMapping("/search")
+    public String searchPostsPage(@RequestParam String query, Model model, @AuthenticationPrincipal OAuth2User principal) {
+        model.addAttribute("query", query);
+        // Получаем количество найденных постов
+        long postsCount = postService.countSearchPosts(query);
+
+        // Добавляем данные в модель
+        model.addAttribute("postsCount", postsCount);
+        model.addAttribute("user", currentUser(principal));
+        model.addAttribute("username", currentUser(principal).getUsername());
+        model.addAttribute("avatar", getProfilePictureAsBase64(currentUser(principal)));
+        return "search"; // Имя шаблона для отображения результатов поиска
+    }
+
+    @GetMapping("/search/results")
+    public ResponseEntity<Page<Map<String, Object>>> searchPosts(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<Map<String, Object>> searchResults = postService.searchPosts(query, page, size);
+        return ResponseEntity.ok(searchResults);
     }
 }
