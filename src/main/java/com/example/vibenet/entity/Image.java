@@ -19,7 +19,7 @@ public class Image {
     @Getter
     @Setter
     @Lob
-    @Column(length = 65555)
+    @Column(length = 655555)
     private byte[] image;
 
 }
